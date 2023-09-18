@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/quasilyte/roboden-game/pathing"
+	"github.com/quasilyte/pathing"
 )
 
 func BenchmarkGreedyBFS(b *testing.B) {

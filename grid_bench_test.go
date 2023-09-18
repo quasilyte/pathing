@@ -3,7 +3,7 @@ package pathing_test
 import (
 	"testing"
 
-	"github.com/quasilyte/roboden-game/pathing"
+	"github.com/quasilyte/pathing"
 )
 
 func BenchmarkPathgridGetCellValue(b *testing.B) {

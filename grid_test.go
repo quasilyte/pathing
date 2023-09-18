@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/quasilyte/gmath"
-	"github.com/quasilyte/roboden-game/pathing"
+	"github.com/quasilyte/pathing"
 )
 
 func TestEmptyGrid(t *testing.T) {
