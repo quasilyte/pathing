@@ -4,11 +4,6 @@ import (
 	"strings"
 )
 
-const (
-	gridPathBytes  = (16 - 2)
-	gridPathMaxLen = gridPathBytes * 4
-)
-
 type GridPath struct {
 	bytes [gridPathBytes]byte
 	len   byte

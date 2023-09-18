@@ -13,6 +13,10 @@ func (c GridCoord) Add(other GridCoord) GridCoord {
 	return GridCoord{X: c.X + other.X, Y: c.Y + other.Y}
 }
 
+func (c GridCoord) Sub(other GridCoord) GridCoord {
+	return GridCoord{X: c.X - other.X, Y: c.Y - other.Y}
+}
+
 func (c GridCoord) reversedMove(d Direction) GridCoord {
 	switch d {
 	case DirRight:

@@ -25,9 +25,18 @@ type weightedGridCoord struct {
 }
 
 func NewGreedyBFS(numCols, numRows int) *GreedyBFS {
+	coordMapCols := gridMapSide
+	if numCols < coordMapCols {
+		coordMapCols = numCols
+	}
+	coordMapRows := gridMapSide
+	if numRows < coordMapRows {
+		coordMapRows = numRows
+	}
+
 	return &GreedyBFS{
 		pqueue:     newPriorityQueue[weightedGridCoord](),
-		coordMap:   newCoordMap(numCols, numRows),
+		coordMap:   newCoordMap(coordMapCols, coordMapRows),
 		coordSlice: make([]weightedGridCoord, 0, 40),
 	}
 }
@@ -38,16 +47,24 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 		return result
 	}
 
-	// If we would like to use small (local) coordinates instead of global
-	// ones, it will be necessary to translate both start and dest here.
-	start := from
-	goal := to
+	// Find a search box origin pos. We need these to translate the local coordinates later.
+	origin := GridCoord{}
+	if originX := from.X - gridPathMaxLen; originX > 0 {
+		origin.X = originX
+	}
+	if originY := from.Y - gridPathMaxLen; originY > 0 {
+		origin.Y = originY
+	}
+
+	// These will be in local coordinates.
+	localStart := from.Sub(origin)
+	localGoal := to.Sub(origin)
 
 	frontier := bfs.pqueue
 	frontier.Reset()
 
 	hotFrontier := bfs.coordSlice[:0]
-	hotFrontier = append(hotFrontier, weightedGridCoord{Coord: start})
+	hotFrontier = append(hotFrontier, weightedGridCoord{Coord: localStart})
 
 	pathmap := bfs.coordMap
 	pathmap.Reset()
@@ -64,9 +81,9 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 			current = frontier.Pop()
 		}
 
-		if current.Coord == goal {
-			result.Steps = bfs.constructPath(start, goal, pathmap)
-			result.Finish = current.Coord
+		if current.Coord == localGoal {
+			result.Steps = bfs.constructPath(localStart, localGoal, pathmap)
+			result.Finish = current.Coord.Add(origin)
 			foundPath = true
 			break
 		}
@@ -74,15 +91,15 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 			break
 		}
 
-		dist := goal.Dist(current.Coord)
+		dist := localGoal.Dist(current.Coord)
 		if dist < shortestDist {
 			shortestDist = dist
 			fallbackCoord = current.Coord
 		}
 		for dir, offset := range &neighborOffsets {
 			next := current.Coord.Add(offset)
-			cx := uint(next.X)
-			cy := uint(next.Y)
+			cx := uint(next.X) + uint(origin.X)
+			cy := uint(next.Y) + uint(origin.Y)
 			if cx >= g.numCols || cy >= g.numRows {
 				continue
 			}
@@ -94,7 +111,7 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 				continue
 			}
 			pathmap.Set(pathmapKey, Direction(dir))
-			nextDist := goal.Dist(next)
+			nextDist := localGoal.Dist(next)
 			nextWeighted := weightedGridCoord{
 				Coord:  next,
 				Weight: current.Weight + 1,
@@ -108,8 +125,8 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 	}
 
 	if !foundPath {
-		result.Steps = bfs.constructPath(start, fallbackCoord, pathmap)
-		result.Finish = fallbackCoord
+		result.Steps = bfs.constructPath(localStart, fallbackCoord, pathmap)
+		result.Finish = fallbackCoord.Add(origin)
 		result.Partial = true
 	}
 
