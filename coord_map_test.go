@@ -6,7 +6,7 @@ import (
 )
 
 func BenchmarkCoordMapReset(b *testing.B) {
-	sizes := []int{32, 256, 2048}
+	sizes := []int{32, 96}
 	for i := range sizes {
 		size := sizes[i]
 		b.Run(fmt.Sprintf("size%d", size), func(b *testing.B) {
