@@ -16,13 +16,13 @@ type coordMap struct {
 
 type coordMapElem struct {
 	key   uint16
-	value Direction
+	value uint8
 }
 
 func newCoordMap(numCols, numRows int) *coordMap {
 	size := numRows * numCols
 	return &coordMap{
-		dense:   make([]coordMapElem, 0, size/8),
+		dense:   make([]coordMapElem, 0, size),
 		sparse:  make([]uint16, size),
 		numRows: numRows,
 		numCols: numCols,
@@ -41,7 +41,7 @@ func (m *coordMap) Get(k uint) Direction {
 	if k < uint(len(m.sparse)) {
 		i := uint(m.sparse[k])
 		if i < uint(len(m.dense)) && uint(m.dense[i].key) == k {
-			return m.dense[i].value
+			return Direction(m.dense[i].value)
 		}
 	}
 	return DirNone
@@ -52,11 +52,11 @@ func (m *coordMap) Set(k uint, d Direction) {
 	if k < uint(len(sparse)) {
 		i := uint(sparse[k])
 		if i < uint(len(m.dense)) && uint(m.dense[i].key) == k {
-			m.dense[i].value = d
+			m.dense[i].value = uint8(d)
 			return
 		}
 		// Insert a new value.
-		m.dense = append(m.dense, coordMapElem{uint16(k), d})
+		m.dense = append(m.dense, coordMapElem{uint16(k), uint8(d)})
 		sparse[k] = uint16(len(m.dense)) - 1
 	}
 }
