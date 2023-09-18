@@ -1,8 +1,47 @@
 package pathing
 
 import (
+	"fmt"
 	"testing"
 )
+
+func BenchmarkCoordMapReset(b *testing.B) {
+	sizes := []int{32, 256, 2048}
+	for i := range sizes {
+		size := sizes[i]
+		b.Run(fmt.Sprintf("size%d", size), func(b *testing.B) {
+			m := newCoordMap(size, size)
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				m.Reset()
+			}
+		})
+	}
+}
+
+func BenchmarkCoordMapSet(b *testing.B) {
+	m := newCoordMap(8, 8)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		m.Reset()
+		for j := 0; j < 8; j++ {
+			m.Set(uint(j), DirUp)
+		}
+	}
+}
+
+func BenchmarkCoordMapGet(b *testing.B) {
+	m := newCoordMap(8, 8)
+	for j := 0; j < 8; j++ {
+		m.Set(uint(j), DirUp)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < 8; j++ {
+			_ = m.Get(uint(j))
+		}
+	}
+}
 
 func TestEmptyCoordMap(t *testing.T) {
 	m := newCoordMap(0, 0)
