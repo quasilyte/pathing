@@ -22,7 +22,10 @@ type coordMapElem struct {
 func newCoordMap(numCols, numRows int) *coordMap {
 	size := numRows * numCols
 	return &coordMap{
-		dense:   make([]coordMapElem, 0, size),
+		// dense is used with append(), so it can grow
+		// in case we need more than size/8.
+		// But for the most cases, we shouldn't need that much space.
+		dense:   make([]coordMapElem, 0, size/8),
 		sparse:  make([]uint16, size),
 		numRows: numRows,
 		numCols: numCols,
