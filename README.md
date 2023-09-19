@@ -38,7 +38,18 @@ TODO
 
 See [_bench](_bench) folder to reproduce the results.
 
-Benchmark results (as of 13 Sep 2023), time ns/op:
+```bash
+# If you're using Linux+Intel processor, consider doing this
+# to reduce the noise and make your results more stable:
+$ echo "1" | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo
+
+# Running and analyzing the benchmarks:
+$ cd _bench
+$ go test -bench=. -benchmem -count=10 | results.txt
+$ benchstat results.txt
+```
+
+Time - **ns/op**:
 
 | Library | no_wall | simple_wall | multi_wall |
 |---|---|---|---|
@@ -48,7 +59,7 @@ Benchmark results (as of 13 Sep 2023), time ns/op:
 | s0rg/grid | 1816039 | 1154117 | 1189989 |
 | SolarLune/paths | 6588751 | 5158604 | 6114856 |
 
-Allocations/op:
+Allocations - **allocs/op**:
 
 | Library | no_wall | simple_wall | multi_wall |
 |---|---|---|---|
@@ -58,7 +69,7 @@ Allocations/op:
 | s0rg/grid | 2976 | 1900 | 1759 |
 | SolarLune/paths | 7199 | 6368 | 7001 |
 
-Allocations bytes/op:
+Allocations -  **bytes/op**:
 
 | Library | no_wall | simple_wall | multi_wall |
 |---|---|---|---|
@@ -68,7 +79,7 @@ Allocations bytes/op:
 | s0rg/grid | 996889 | 551976 | 740523 |
 | SolarLune/paths | 235168 | 194768 | 230416 |
 
-I hope that my contribution to this lineup will increase the competition to get better Go gamedev libraries.
+I hope that my contribution to this lineup will increase the competition, so we get better Go gamedev libraries in the future.
 
 Some of my findings that can make these libraries faster:
 
