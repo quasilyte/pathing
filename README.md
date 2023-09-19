@@ -52,7 +52,7 @@ Allocations/op:
 
 | Library | no_wall | simple_wall | multi_wall |
 |---|---|---|---|
-| quasilyte/pathing | 0 | 0 | 9 |
+| quasilyte/pathing | 0 | 0 | 0 |
 | fzipp/astar | 2008 | 3677 | 3600 |
 | beefsack/go-astar | 529 | 1347 | 1557 |
 | s0rg/grid | 2976 | 1900 | 1759 |
@@ -62,7 +62,7 @@ Allocations bytes/op:
 
 | Library | no_wall | simple_wall | multi_wall |
 |---|---|---|---|
-| quasilyte/pathing | 0 | 0 | 9 |
+| quasilyte/pathing | 0 | 0 | 0 |
 | fzipp/astar | 337336 | 511908 | 722690 |
 | beefsack/go-astar | 43653 | 93122 | 130731 |
 | s0rg/grid | 996889 | 551976 | 740523 |
