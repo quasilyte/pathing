@@ -1,6 +1,6 @@
 # quasilyte/pathing
 
-A very efficient & zero-allocation, grid-based, pathfinding library for Go.
+A very fast & zero-allocation, grid-based, pathfinding library for Go.
 
 ## Overview
 
