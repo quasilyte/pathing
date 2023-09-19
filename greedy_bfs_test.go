@@ -30,7 +30,57 @@ func BenchmarkGreedyBFS(b *testing.B) {
 }
 
 func TestGreedyBFS(t *testing.T) {
-	runTest := func(t *testing.T, test bfsTestCase, offset, offset2 pathing.GridCoord) {
+	runTestOnce := func(t *testing.T, test bfsTestCase, m []string, parseResult testGrid, bfs *pathing.GreedyBFS, grid *pathing.Grid) {
+		t.Helper()
+
+		l := pathing.MakeGridLayer(1, 0, 1, 1)
+
+		result := bfs.BuildPath(grid, parseResult.start, parseResult.dest, l)
+		path := result.Steps
+
+		haveRows := make([][]byte, len(parseResult.haveRows))
+		for i, row := range parseResult.haveRows {
+			haveRows[i] = make([]byte, len(row))
+			copy(haveRows[i], row)
+		}
+
+		pos := parseResult.start
+		pathLen := 0
+		for path.HasNext() {
+			pathLen++
+			d := path.Next()
+			pos = pos.Move(d)
+			marker := haveRows[pos.Y][pos.X]
+			switch marker {
+			case 'A':
+				haveRows[pos.Y][pos.X] = 'A'
+			case 'B':
+				haveRows[pos.Y][pos.X] = '$'
+			case ' ':
+				t.Fatal("visited one cell more than once")
+			case '.':
+				haveRows[pos.Y][pos.X] = ' '
+			default:
+				panic(fmt.Sprintf("unexpected %c marker", marker))
+			}
+		}
+
+		have := string(bytes.Join(haveRows, []byte("\n")))
+		want := strings.Join(m, "\n")
+
+		if have != want {
+			t.Fatalf("paths mismatch\nmap:\n%s\nhave (l=%d):\n%s\nwant (l=%d):\n%s",
+				strings.Join(m, "\n"), pathLen, have, parseResult.pathLen, want)
+		}
+
+		wantPartial := test.partial
+		havePartial := pos != parseResult.dest && result.Partial
+		if havePartial != wantPartial {
+			t.Fatalf("partial flag mismatch\nmap:\n%s\nhave: %v\nwant: %v", strings.Join(m, "\n"), havePartial, wantPartial)
+		}
+	}
+
+	runTestCase := func(t *testing.T, test bfsTestCase, offset, offset2 pathing.GridCoord) {
 		t.Helper()
 
 		m := make([]string, len(test.path))
@@ -60,90 +110,54 @@ func TestGreedyBFS(t *testing.T) {
 			}
 		}
 
-		l := pathing.MakeGridLayer(1, 0, 1, 1)
-
 		parseResult := testParseGrid(t, m)
 		bfs := pathing.NewGreedyBFS(parseResult.numCols, parseResult.numRows)
 		grid := parseResult.grid
 
-		result := bfs.BuildPath(grid, parseResult.start, parseResult.dest, l)
-		path := result.Steps
-
-		pos := parseResult.start
-		pathLen := 0
-		for path.HasNext() {
-			pathLen++
-			d := path.Next()
-			pos = pos.Move(d)
-			marker := parseResult.haveRows[pos.Y][pos.X]
-			switch marker {
-			case 'A':
-				parseResult.haveRows[pos.Y][pos.X] = 'A'
-			case 'B':
-				parseResult.haveRows[pos.Y][pos.X] = '$'
-			case ' ':
-				t.Fatal("visited one cell more than once")
-			case '.':
-				parseResult.haveRows[pos.Y][pos.X] = ' '
-			default:
-				panic(fmt.Sprintf("unexpected %c marker", marker))
-			}
-		}
-
-		have := string(bytes.Join(parseResult.haveRows, []byte("\n")))
-		want := strings.Join(m, "\n")
-
-		if have != want {
-			t.Fatalf("paths mismatch\nmap:\n%s\nhave (l=%d):\n%s\nwant (l=%d):\n%s",
-				strings.Join(m, "\n"), pathLen, have, parseResult.pathLen, want)
-		}
-
-		wantPartial := test.partial
-		havePartial := pos != parseResult.dest && result.Partial
-		if havePartial != wantPartial {
-			t.Fatalf("partial flag mismatch\nmap:\n%s\nhave: %v\nwant: %v", strings.Join(m, "\n"), havePartial, wantPartial)
+		for i := 0; i < 5; i++ {
+			runTestOnce(t, test, m, parseResult, bfs, grid)
 		}
 	}
 
 	for i := range bfsTests {
 		test := bfsTests[i]
 		t.Run(test.name, func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{}, pathing.GridCoord{})
+			runTestCase(t, test, pathing.GridCoord{}, pathing.GridCoord{})
 		})
 
 		t.Run(test.name+"with_offset_x", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{X: 8}, pathing.GridCoord{})
+			runTestCase(t, test, pathing.GridCoord{X: 8}, pathing.GridCoord{})
 		})
 		t.Run(test.name+"with_offset_x2", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{X: 500}, pathing.GridCoord{})
+			runTestCase(t, test, pathing.GridCoord{X: 500}, pathing.GridCoord{})
 		})
 		t.Run(test.name+"with_offset_y", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{Y: 24}, pathing.GridCoord{})
+			runTestCase(t, test, pathing.GridCoord{Y: 24}, pathing.GridCoord{})
 		})
 		t.Run(test.name+"with_offset_y2", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{Y: 600}, pathing.GridCoord{})
+			runTestCase(t, test, pathing.GridCoord{Y: 600}, pathing.GridCoord{})
 		})
 		t.Run(test.name+"with_offset_xy", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{X: 32, Y: 120}, pathing.GridCoord{})
+			runTestCase(t, test, pathing.GridCoord{X: 32, Y: 120}, pathing.GridCoord{})
 		})
 		t.Run(test.name+"with_offset_xy2", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{X: 64, Y: 32}, pathing.GridCoord{})
+			runTestCase(t, test, pathing.GridCoord{X: 64, Y: 32}, pathing.GridCoord{})
 		})
 		t.Run(test.name+"with_offset_xy3", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{X: 150, Y: 150}, pathing.GridCoord{})
+			runTestCase(t, test, pathing.GridCoord{X: 150, Y: 150}, pathing.GridCoord{})
 		})
 
 		t.Run(test.name+"with_offset2", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{X: 8, Y: 8}, pathing.GridCoord{X: 8, Y: 8})
+			runTestCase(t, test, pathing.GridCoord{X: 8, Y: 8}, pathing.GridCoord{X: 8, Y: 8})
 		})
 		t.Run(test.name+"with_offset2_2", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{}, pathing.GridCoord{X: 150, Y: 150})
+			runTestCase(t, test, pathing.GridCoord{}, pathing.GridCoord{X: 150, Y: 150})
 		})
 		t.Run(test.name+"with_offset2_x", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{X: 150}, pathing.GridCoord{X: 150})
+			runTestCase(t, test, pathing.GridCoord{X: 150}, pathing.GridCoord{X: 150})
 		})
 		t.Run(test.name+"with_offset2_y", func(t *testing.T) {
-			runTest(t, test, pathing.GridCoord{Y: 150}, pathing.GridCoord{Y: 150})
+			runTestCase(t, test, pathing.GridCoord{Y: 150}, pathing.GridCoord{Y: 150})
 		})
 	}
 }

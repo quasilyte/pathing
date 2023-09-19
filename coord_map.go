@@ -1,71 +1,69 @@
 package pathing
 
-// The sparse/dense idea is described here: https://research.swtch.com/sparse
-//
-// We use a fact that grid coords are usually small and can be packed as
-// simple integers if we want to.
-// So, a GridCoord{x, y} (a pair of 2 ints) can be translated to
-// uint16 value which can be interpreted as a packed coordinate.
+import (
+	"math"
+)
 
 type coordMap struct {
-	dense   []coordMapElem
-	sparse  []uint16
+	elems   []coordMapElem
+	gen     uint32
 	numRows int
 	numCols int
 }
 
 type coordMapElem struct {
-	key   uint16
 	value uint8
+	gen   uint32
 }
 
 func newCoordMap(numCols, numRows int) *coordMap {
 	size := numRows * numCols
 	return &coordMap{
-		// dense is used with append(), so it can grow
-		// in case we need more than size/8.
-		// But for the most cases, we shouldn't need that much space.
-		dense:   make([]coordMapElem, 0, size/8),
-		sparse:  make([]uint16, size),
+		elems:   make([]coordMapElem, size),
+		gen:     1,
 		numRows: numRows,
 		numCols: numCols,
 	}
 }
 
-func (m *coordMap) Cap() int {
-	return len(m.sparse)
-}
-
-func (m *coordMap) Len() int {
-	return len(m.dense)
-}
-
 func (m *coordMap) Get(k uint) Direction {
-	if k < uint(len(m.sparse)) {
-		i := uint(m.sparse[k])
-		if i < uint(len(m.dense)) && uint(m.dense[i].key) == k {
-			return Direction(m.dense[i].value)
+	if k < uint(len(m.elems)) {
+		el := m.elems[k]
+		if el.gen == m.gen {
+			return Direction(el.value)
 		}
 	}
 	return DirNone
 }
 
 func (m *coordMap) Set(k uint, d Direction) {
-	sparse := m.sparse
-	if k < uint(len(sparse)) {
-		i := uint(sparse[k])
-		if i < uint(len(m.dense)) && uint(m.dense[i].key) == k {
-			m.dense[i].value = uint8(d)
-			return
-		}
-		// Insert a new value.
-		m.dense = append(m.dense, coordMapElem{uint16(k), uint8(d)})
-		sparse[k] = uint16(len(m.dense)) - 1
+	if k < uint(len(m.elems)) {
+		m.elems[k] = coordMapElem{value: uint8(d), gen: m.gen}
 	}
 }
 
 func (m *coordMap) Reset() {
-	m.dense = m.dense[:0]
+	if m.gen == math.MaxUint32 {
+		// For most users, this will never happen.
+		// But to be safe, we need to handle this correctly.
+		// m.gen will be 1, element gen will be 0.
+		m.clear()
+	} else {
+		m.gen++
+	}
+}
+
+// clear does a real array data reset.
+// m.gen becomes 1.
+// Every element gen becomes 0.
+// This is identical to the initial array state.
+//
+//go:noinline - called on a cold path, therefore it should not be inlined.
+func (m *coordMap) clear() {
+	m.gen = 1
+	for i := range m.elems {
+		m.elems[i] = coordMapElem{value: uint8(DirNone), gen: 0}
+	}
 }
 
 func (s *coordMap) packCoord(c GridCoord) uint {
