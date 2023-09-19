@@ -8,13 +8,13 @@ This library has several things that make it much faster than the alternatives. 
 
 Some of the limitations you may want to know about before using this library:
 
-1. Its max path length per `BuildPath()` is limited.
-2. Only 4 tile kinds per `Grid` are supported.
+1. Its max path length per `BuildPath()` is limited
+2. Only 4 tile kinds per `Grid` are supported
 
 Both of these limitations can be worked around:
 
-1. Connect the partial results to traverse a bigger map.
-2. Use different "layers" for different biomes.
+1. Connect the partial results to traverse a bigger map
+2. Use different "layers" for different biomes
 
 To learn more about this library and its internals, see this presentation: TODO link.
 
