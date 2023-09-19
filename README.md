@@ -78,5 +78,6 @@ Some of my findings that can make these libraries faster:
   * The [sparse-dense](https://research.swtch.com/sparse) map could be an option here
 * Allocating the result path slice is expensive; consider deltas (2 bits per step)
 * Interface method calls are slow for a hot loop
+* Try to be cache-friendly; everything that can be packed should be packed
 
 If you want to learn more details, look at my library implementation and/or see TODO talk link.
