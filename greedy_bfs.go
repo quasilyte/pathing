@@ -113,7 +113,9 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 			pathmap.Set(pathmapKey, Direction(dir))
 			nextDist := localGoal.Dist(next)
 			nextWeighted := weightedGridCoord{
-				Coord:  next,
+				Coord: next,
+				// This is used to determine the out-of-scope coordinates.
+				// It's not a distance score; therefore, we're not using nextDist here.
 				Weight: current.Weight + 1,
 			}
 			if nextDist < dist {
