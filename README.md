@@ -32,7 +32,7 @@ Some games that use this library:
 
 ## Quick Start
 
-This is a simplified example. See [full example](example_detailed_test.go) if you want to learn more.
+This is a simplified example. See the [full example](example_detailed_test.go) if you want to learn more.
 
 ```go
 func main() {
