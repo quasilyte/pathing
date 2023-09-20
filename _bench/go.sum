@@ -2,10 +2,8 @@ github.com/beefsack/go-astar v0.0.0-20200827232313-4ecf9e304482 h1:p4g4uok3+r6Tg
 github.com/beefsack/go-astar v0.0.0-20200827232313-4ecf9e304482/go.mod h1:Cu3t5VeqE8kXjUBeNXWQprfuaP5UCIc5ggGjgMx9KFc=
 github.com/fzipp/astar v0.2.0 h1:vEmeszAm62kB02Qh/oXQNrVR8p6G00WAJIkVRJYzekc=
 github.com/fzipp/astar v0.2.0/go.mod h1:1zYE8kcTMuS0g+b9Vh9lfR7t0MleOH6EneyA3esiLEc=
-github.com/quasilyte/gmath v0.0.0-20230723114625-7e8674b9f7b8 h1:sn3OqS/7OZBPrhEhhtEp8nHdatc/RNODsEHNxNRpyz8=
-github.com/quasilyte/gmath v0.0.0-20230723114625-7e8674b9f7b8/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
-github.com/quasilyte/pathing v0.0.0-20230915100554-44e61adb82ec h1:0xEwQZ0CihQ5OPd/UvlUj6k4KjdN2S9A71lxSg/uzT4=
-github.com/quasilyte/pathing v0.0.0-20230915100554-44e61adb82ec/go.mod h1:ixjYf4Sk6dLp/SekkpGSqvSkODKfuZOwwi0nPR0AMTw=
+github.com/quasilyte/pathing v0.0.0-20230920175739-f09a6a6e624b h1:FC97/sIYUluRLue9kB0epP788FN4Lc7B/QrbzlN+JQg=
+github.com/quasilyte/pathing v0.0.0-20230920175739-f09a6a6e624b/go.mod h1:ixjYf4Sk6dLp/SekkpGSqvSkODKfuZOwwi0nPR0AMTw=
 github.com/s0rg/array2d v1.1.1 h1:fPZDbolqx9P0gCaD9yFTZT0TcWa6o/gK4t0YnGRpp/0=
 github.com/s0rg/array2d v1.1.1/go.mod h1:XUVXpxRB1bSnngbrTAyfEcLl6GP+8OpyFLEkwvQOukI=
 github.com/s0rg/grid v1.4.0 h1:h/sx1d3PBV4VEXRbbxrJu7D6119mJn2JGTV6FWpPt6c=
