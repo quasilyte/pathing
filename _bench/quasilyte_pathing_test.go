@@ -4,7 +4,7 @@ import (
 	"github.com/quasilyte/pathing"
 )
 
-var pathingLayer = pathing.MakeGridLayer(1, 0, 0, 0)
+var pathingLayer = pathing.MakeGridLayer([4]uint8{1, 0, 0, 0})
 
 type quasilytePathingTester struct {
 	tc *testCase
@@ -20,9 +20,12 @@ func newQuasilytePathingTester() *quasilytePathingTester {
 func (t *quasilytePathingTester) Init(tc *testCase) {
 	t.tc = tc
 	t.bfs = pathing.NewGreedyBFS(tc.numCols, tc.numRows)
-	width := float64(tc.cellWidth) * float64(tc.numCols)
-	height := float64(tc.cellHeight) * float64(tc.numRows)
-	t.grid = pathing.NewGrid(width, height, 0)
+	width := tc.cellWidth * tc.numCols
+	height := tc.cellHeight * tc.numRows
+	t.grid = pathing.NewGrid(pathing.GridConfig{
+		WorldWidth:  uint(width),
+		WorldHeight: uint(height),
+	})
 }
 
 func (t *quasilytePathingTester) BuildPath() (pathing.GridPath, gridCoord) {

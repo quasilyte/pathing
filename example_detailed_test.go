@@ -6,7 +6,7 @@ import (
 	"github.com/quasilyte/pathing"
 )
 
-func ExampleDetailed() {
+func Example() {
 	// Grid is a "map" that stores cell info.
 	const cellSize = 40
 	g := pathing.NewGrid(pathing.GridConfig{

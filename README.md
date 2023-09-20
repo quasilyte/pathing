@@ -1,5 +1,8 @@
 # quasilyte/pathing
 
+![Build Status](https://github.com/quasilyte/pathing/workflows/Go/badge.svg)
+[![PkgGoDev](https://pkg.go.dev/badge/mod/github.com/quasilyte/pathing)](https://pkg.go.dev/mod/github.com/quasilyte/pathing)
+
 A very fast & zero-allocation, grid-based, pathfinding library for Go.
 
 ## Overview
