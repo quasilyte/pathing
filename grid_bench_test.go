@@ -15,7 +15,7 @@ func BenchmarkPathgridGetCellValue(b *testing.B) {
 	}
 }
 
-func BenchmarkPathgridSetCellTag(b *testing.B) {
+func BenchmarkPathgridSetCellTile(b *testing.B) {
 	p := pathing.NewGrid(pathing.GridConfig{WorldWidth: 1856, WorldHeight: 1856})
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
