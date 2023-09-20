@@ -152,7 +152,7 @@ func TestRandFillGrid(t *testing.T) {
 	values := []uint8{10, 0, 20, 30}
 	values2 := []uint8{0, 1, 2, 3}
 	l := pathing.MakeGridLayer(([4]uint8)(values))
-	l2 := pathing.MakeGridLayer(([4]uint8)(values))
+	l2 := pathing.MakeGridLayer(([4]uint8)(values2))
 	for y := 0; y < 10; y++ {
 		for x := 0; x < 10; x++ {
 			c := pathing.GridCoord{X: x, Y: y}
