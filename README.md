@@ -32,15 +32,9 @@ Some games that use this library:
 
 ## Quick Start
 
+This is a simplified example. See [full example](example_detailed_test.go) if you want to learn more.
+
 ```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/quasilyte/pathing"
-)
-
 func main() {
 	// Grid is a "map" that stores cell info.
 	const cellSize = 40
@@ -70,21 +64,14 @@ func main() {
 	// Let's add some forests and mountains.
 	//
 	// The result map layout will look like this:
-	// m m m m m | [m] - mountain
-	// m   f   m | [f] - forest
-	// m   f   m | [ ] - plain
-	// m       m
-	// m m m m m
+	// . . m . . | [m] - mountain
+	// . . f . . | [f] - forest
+	// . . f . . | [.] - plain
+	// . . . . .
+	// . . . . .
+	g.SetCellTile(pathing.GridCoord{X: 2, Y: 0}, tileMountain)
 	g.SetCellTile(pathing.GridCoord{X: 2, Y: 1}, tileForest)
 	g.SetCellTile(pathing.GridCoord{X: 2, Y: 2}, tileForest)
-	for y := 0; y < g.NumRows(); y++ {
-		for x := 0; x < g.NumCols(); x++ {
-			if !(y == 0 || y == g.NumRows()-1 || x == 0 || x == g.NumCols()-1) {
-				continue
-			}
-			g.SetCellTile(pathing.GridCoord{X: x, Y: y}, tileMountain)
-		}
-	}
 
 	// Now we need to tell the pathfinding library how to interpret
 	// these tiles. For instance, which tiles are passable and not.
@@ -103,11 +90,11 @@ func main() {
 	})
 
 	// Our map with markers will look like this:
-	// m m m m m | [m] - mountain
-	// m A f B m | [f] - forest
-	// m   f   m | [ ] - plain
-	// m       m | [A] - start
-	// m m m m m | [B] - finish
+	// . . m . . | [m] - mountain
+	// . A f B . | [f] - forest
+	// . . f . . | [.] - plain
+	// . . . . . | [A] - start
+	// . . . . . | [B] - finish
 	startPos := pathing.GridCoord{X: 1, Y: 1}
 	finishPos := pathing.GridCoord{X: 3, Y: 1}
 
@@ -123,11 +110,6 @@ func main() {
 	// A flying unit can go in a straight line.
 	p = bfs.BuildPath(g, startPos, finishPos, flyingLayer)
 	fmt.Println(p.Steps.String(), "- flying layer path")
-
-	// A path building result has some extra information bits you might be interested in.
-	// Usually, you only need the Steps part, so you can pass it around instead of the
-	// entire result object
-	fmt.Println(p.Finish, p.Partial)
 }
 ```
 

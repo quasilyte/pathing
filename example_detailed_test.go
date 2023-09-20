@@ -6,7 +6,7 @@ import (
 	"github.com/quasilyte/pathing"
 )
 
-func ExampleQuickStart() {
+func ExampleDetailed() {
 	// Grid is a "map" that stores cell info.
 	const cellSize = 40
 	g := pathing.NewGrid(pathing.GridConfig{
@@ -35,14 +35,21 @@ func ExampleQuickStart() {
 	// Let's add some forests and mountains.
 	//
 	// The result map layout will look like this:
-	// . . m . . | [m] - mountain
-	// . . f . . | [f] - forest
-	// . . f . . | [.] - plain
-	// . . . . .
-	// . . . . .
-	g.SetCellTile(pathing.GridCoord{X: 2, Y: 0}, tileMountain)
+	// m m m m m | [m] - mountain
+	// m   f   m | [f] - forest
+	// m   f   m | [ ] - plain
+	// m       m
+	// m m m m m
 	g.SetCellTile(pathing.GridCoord{X: 2, Y: 1}, tileForest)
 	g.SetCellTile(pathing.GridCoord{X: 2, Y: 2}, tileForest)
+	for y := 0; y < g.NumRows(); y++ {
+		for x := 0; x < g.NumCols(); x++ {
+			if !(y == 0 || y == g.NumRows()-1 || x == 0 || x == g.NumCols()-1) {
+				continue
+			}
+			g.SetCellTile(pathing.GridCoord{X: x, Y: y}, tileMountain)
+		}
+	}
 
 	// Now we need to tell the pathfinding library how to interpret
 	// these tiles. For instance, which tiles are passable and not.
@@ -61,11 +68,11 @@ func ExampleQuickStart() {
 	})
 
 	// Our map with markers will look like this:
-	// . . m . . | [m] - mountain
-	// . A f B . | [f] - forest
-	// . . f . . | [.] - plain
-	// . . . . . | [A] - start
-	// . . . . . | [B] - finish
+	// m m m m m | [m] - mountain
+	// m A f B m | [f] - forest
+	// m   f   m | [ ] - plain
+	// m       m | [A] - start
+	// m m m m m | [B] - finish
 	startPos := pathing.GridCoord{X: 1, Y: 1}
 	finishPos := pathing.GridCoord{X: 3, Y: 1}
 
@@ -82,6 +89,11 @@ func ExampleQuickStart() {
 	p = bfs.BuildPath(g, startPos, finishPos, flyingLayer)
 	fmt.Println(p.Steps.String(), "- flying layer path")
 
+	// A path building result has some extra information bits you might be interested in.
+	// Usually, you only need the Steps part, so you can pass it around instead of the
+	// entire result object
+	fmt.Println(p.Finish, p.Partial)
+
 	// Output:
 	// {Down,Down,Right,Right,Up,Up} - normal layer path
 	// > step: Down
@@ -91,4 +103,5 @@ func ExampleQuickStart() {
 	// > step: Up
 	// > step: Up
 	// {Right,Right} - flying layer path
+	// {3 1} false
 }
