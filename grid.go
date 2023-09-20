@@ -22,7 +22,7 @@ type GridConfig struct {
 	CellWidth  uint
 	CellHeight uint
 
-	DefaultTag uint8
+	DefaultTile uint8
 }
 
 func NewGrid(config GridConfig) *Grid {
@@ -54,11 +54,11 @@ func NewGrid(config GridConfig) *Grid {
 	}
 	b := make([]byte, numBytes)
 
-	defaultTag := config.DefaultTag
-	defaultTag &= 0b11
-	if defaultTag != 0 {
+	defaultTileTag := config.DefaultTile
+	defaultTileTag &= 0b11
+	if defaultTileTag != 0 {
 		v := uint8(0)
-		switch defaultTag {
+		switch defaultTileTag {
 		case 1:
 			v = 0b01010101
 		case 2:
@@ -80,14 +80,14 @@ func (g *Grid) NumCols() int { return int(g.numCols) }
 
 func (g *Grid) NumRows() int { return int(g.numRows) }
 
-func (g *Grid) SetCellTag(c GridCoord, tag uint8) {
+func (g *Grid) SetCellTile(c GridCoord, tileTag uint8) {
 	i := uint(c.Y)*g.numCols + uint(c.X)
 	byteIndex := i / 4
 	if byteIndex < uint(len(g.bytes)) {
 		shift := (i % 4) * 2
 		b := g.bytes[byteIndex]
-		b &^= 0b11 << shift        // Clear the two data bits
-		b |= (tag & 0b11) << shift // Mix it with provided bits
+		b &^= 0b11 << shift            // Clear the two data bits
+		b |= (tileTag & 0b11) << shift // Mix it with provided bits
 		g.bytes[byteIndex] = b
 	}
 }
@@ -106,8 +106,8 @@ func (g *Grid) getCellValue(x, y uint, l GridLayer) uint8 {
 	i := y*g.numCols + x
 	byteIndex := i / 4
 	shift := (i % 4) * 2
-	tag := ((readByte(g.bytes, byteIndex)) >> shift) & 0b11
-	return l.getFast(tag)
+	tileTag := ((readByte(g.bytes, byteIndex)) >> shift) & 0b11
+	return l.getFast(tileTag)
 }
 
 func (g *Grid) AlignPos(x, y float64) (float64, float64) {

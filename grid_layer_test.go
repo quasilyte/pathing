@@ -18,7 +18,7 @@ func TestGridLayer(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		l := MakeGridLayer(test[0], test[1], test[2], test[3])
+		l := MakeGridLayer(([4]uint8)(test))
 		for i := uint8(0); i <= 3; i++ {
 			want := test[i]
 			have := l.Get(i)

@@ -10,7 +10,7 @@ import (
 )
 
 func BenchmarkGreedyBFS(b *testing.B) {
-	l := pathing.MakeGridLayer(1, 0, 1, 1)
+	l := pathing.MakeGridLayer([4]uint8{1, 0, 1, 1})
 	for i := range bfsTests {
 		test := bfsTests[i]
 		if !test.bench {
@@ -33,7 +33,7 @@ func TestGreedyBFS(t *testing.T) {
 	runTestOnce := func(t *testing.T, test bfsTestCase, m []string, parseResult testGrid, bfs *pathing.GreedyBFS, grid *pathing.Grid) {
 		t.Helper()
 
-		l := pathing.MakeGridLayer(1, 0, 1, 1)
+		l := pathing.MakeGridLayer([4]uint8{1, 0, 1, 1})
 
 		result := bfs.BuildPath(grid, parseResult.start, parseResult.dest, l)
 		path := result.Steps
@@ -195,7 +195,7 @@ func testParseGrid(tb testing.TB, m []string) testGrid {
 			haveRows[row][col] = marker
 			switch marker {
 			case 'x':
-				grid.SetCellTag(cell, 1)
+				grid.SetCellTile(cell, 1)
 			case 'A':
 				startPos = cell
 			case 'B', '$':
