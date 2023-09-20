@@ -1,31 +1,51 @@
 package pathing
 
-import (
-	"github.com/quasilyte/gmath"
-)
-
-const (
-	CellSize float64 = 32
-)
-
 type Grid struct {
-	worldWidth  float64
-	worldHeight float64
-
 	numCols uint
 	numRows uint
 
 	bytes []byte
+
+	cellWidth  int
+	cellHeight int
+
+	fcellWidth      float64
+	fcellHeight     float64
+	fcellHalfWidth  float64
+	fcellHalfHeight float64
 }
 
-func NewGrid(worldWidth, worldHeight float64, defaultTag uint8) *Grid {
-	g := &Grid{
-		worldWidth:  worldWidth,
-		worldHeight: worldHeight,
+type GridConfig struct {
+	WorldWidth  uint
+	WorldHeight uint
+
+	CellWidth  uint
+	CellHeight uint
+
+	DefaultTag uint8
+}
+
+func NewGrid(config GridConfig) *Grid {
+	if config.CellWidth == 0 {
+		config.CellWidth = 32
+	}
+	if config.CellHeight == 0 {
+		config.CellHeight = 32
 	}
 
-	g.numCols = uint(g.worldWidth / CellSize)
-	g.numRows = uint(g.worldHeight / CellSize)
+	g := &Grid{
+		cellWidth:  int(config.CellWidth),
+		cellHeight: int(config.CellHeight),
+
+		fcellWidth:  float64(config.CellWidth),
+		fcellHeight: float64(config.CellHeight),
+	}
+
+	g.fcellHalfWidth = float64(config.CellWidth / 2)
+	g.fcellHalfHeight = float64(config.CellHeight / 2)
+
+	g.numCols = config.WorldWidth / config.CellWidth
+	g.numRows = config.WorldHeight / config.CellHeight
 
 	numCells := g.numCols * g.numRows
 	numBytes := numCells / 4
@@ -34,6 +54,7 @@ func NewGrid(worldWidth, worldHeight float64, defaultTag uint8) *Grid {
 	}
 	b := make([]byte, numBytes)
 
+	defaultTag := config.DefaultTag
 	defaultTag &= 0b11
 	if defaultTag != 0 {
 		v := uint8(0)
@@ -55,9 +76,9 @@ func NewGrid(worldWidth, worldHeight float64, defaultTag uint8) *Grid {
 	return g
 }
 
-func (g *Grid) Size() (numCols, numRows int) {
-	return int(g.numCols), int(g.numRows)
-}
+func (g *Grid) NumCols() int { return int(g.numCols) }
+
+func (g *Grid) NumRows() int { return int(g.numRows) }
 
 func (g *Grid) SetCellTag(c GridCoord, tag uint8) {
 	i := uint(c.Y)*g.numCols + uint(c.X)
@@ -89,48 +110,30 @@ func (g *Grid) getCellValue(x, y uint, l GridLayer) uint8 {
 	return l.getFast(tag)
 }
 
-func (g *Grid) AlignPos(pos gmath.Vec) gmath.Vec {
-	return g.CoordToPos(g.PosToCoord(pos))
+func (g *Grid) AlignPos(x, y float64) (float64, float64) {
+	return g.CoordToPos(g.PosToCoord(x, y))
 }
 
-func (g *Grid) AlignPos2x2(pos gmath.Vec) gmath.Vec {
-	alignedPos := g.AlignPos(pos)
-	remX := int(pos.X) % int(CellSize)
-	remY := int(pos.Y) % int(CellSize)
-	if remX < int(CellSize)/2 {
-		alignedPos.X -= 16
-	} else {
-		alignedPos.X += 16
+func (g *Grid) PosToCoord(x, y float64) GridCoord {
+	return GridCoord{
+		X: int(x) / g.cellWidth,
+		Y: int(y) / g.cellHeight,
 	}
-	if remY < int(CellSize)/2 {
-		alignedPos.Y -= 16
-	} else {
-		alignedPos.Y += 16
-	}
-	return alignedPos
 }
 
-func (g *Grid) IndexToCoord(index int) GridCoord {
-	u32 := uint32(index)
+func (g *Grid) CoordToPos(cell GridCoord) (float64, float64) {
+	x := (float64(cell.X) * g.fcellWidth) + g.fcellHalfWidth
+	y := (float64(cell.Y) * g.fcellHeight) + g.fcellHalfHeight
+	return x, y
+}
+
+func (g *Grid) UnpackCoord(v uint32) GridCoord {
+	u32 := uint32(v)
 	x := int(u32 & 0xffff)
 	y := int(u32 >> 16)
 	return GridCoord{X: x, Y: y}
 }
 
-func (g *Grid) CoordToIndex(cell GridCoord) int {
-	u32 := uint32(cell.X) | uint32(cell.Y<<16)
-	return int(u32)
-}
-
-func (g *Grid) PosToCoord(pos gmath.Vec) GridCoord {
-	x := int(pos.X) / int(CellSize)
-	y := int(pos.Y) / int(CellSize)
-	return GridCoord{x, y}
-}
-
-func (g *Grid) CoordToPos(cell GridCoord) gmath.Vec {
-	return gmath.Vec{
-		X: (float64(cell.X) * CellSize) + (CellSize / 2),
-		Y: (float64(cell.Y) * CellSize) + (CellSize / 2),
-	}
+func (g *Grid) PackCoord(cell GridCoord) uint32 {
+	return uint32(cell.X) | uint32(cell.Y<<16)
 }

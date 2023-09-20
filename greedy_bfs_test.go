@@ -178,7 +178,10 @@ func testParseGrid(tb testing.TB, m []string) testGrid {
 	numCols := len(m[0])
 	numRows := len(m)
 
-	grid := pathing.NewGrid(pathing.CellSize*float64(numCols), pathing.CellSize*float64(numRows), 0)
+	grid := pathing.NewGrid(pathing.GridConfig{
+		WorldWidth:  32 * uint(numCols),
+		WorldHeight: 32 * uint(numRows),
+	})
 
 	pathLen := 0
 	var startPos pathing.GridCoord

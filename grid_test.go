@@ -5,18 +5,32 @@ import (
 	"testing"
 	"time"
 
-	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/pathing"
 )
 
+type testPos struct {
+	X float64
+	Y float64
+}
+
+func (p testPos) XY() (float64, float64) {
+	return p.X, p.Y
+}
+
 func TestEmptyGrid(t *testing.T) {
-	p := pathing.NewGrid(0, 0, 0)
-	cols, rows := p.Size()
+	p := pathing.NewGrid(pathing.GridConfig{
+		WorldWidth:  0,
+		WorldHeight: 0,
+		CellWidth:   32,
+		CellHeight:  32,
+	})
+	cols := p.NumCols()
+	rows := p.NumRows()
 	if rows != 0 || cols != 0 {
 		t.Fatalf("expected [0,0] size, got [%d,%d]", cols, rows)
 	}
 
-	positions := []gmath.Vec{
+	positions := []testPos{
 		{X: 0, Y: 0},
 		{X: 98, Y: 0},
 		{X: 0, Y: 98},
@@ -28,15 +42,21 @@ func TestEmptyGrid(t *testing.T) {
 
 	l := pathing.MakeGridLayer(1, 0, 1, 1)
 	for _, pos := range positions {
-		if p.GetCellValue(p.PosToCoord(pos), l) != 0 {
+		if p.GetCellValue(p.PosToCoord(pos.XY()), l) != 0 {
 			t.Fatalf("empty grid reported %v as free", pos)
 		}
 	}
 }
 
 func TestGridOutOfBounds(t *testing.T) {
-	p := pathing.NewGrid(4*pathing.CellSize, 4*pathing.CellSize, 0)
-	cols, rows := p.Size()
+	p := pathing.NewGrid(pathing.GridConfig{
+		WorldWidth:  48 * 4,
+		WorldHeight: 48 * 4,
+		CellWidth:   48,
+		CellHeight:  48,
+	})
+	cols := p.NumCols()
+	rows := p.NumRows()
 	if rows != 4 || cols != 4 {
 		t.Fatalf("expected [4,4] size, got [%d,%d]", cols, rows)
 	}
@@ -115,7 +135,10 @@ func TestGridMaps(t *testing.T) {
 }
 
 func TestRandFillGrid(t *testing.T) {
-	p := pathing.NewGrid(10*pathing.CellSize, 10*pathing.CellSize, 0)
+	p := pathing.NewGrid(pathing.GridConfig{
+		WorldWidth:  10 * 32,
+		WorldHeight: 10 * 32,
+	})
 
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	layers := make([][]uint8, 10)
@@ -148,7 +171,12 @@ func TestRandFillGrid(t *testing.T) {
 }
 
 func TestGridValueChange(t *testing.T) {
-	p := pathing.NewGrid(4*pathing.CellSize, 4*pathing.CellSize, 0)
+	p := pathing.NewGrid(pathing.GridConfig{
+		WorldWidth:  4 * 64,
+		WorldHeight: 4 * 64,
+		CellWidth:   64,
+		CellHeight:  64,
+	})
 	layerValues := []uint8{1, 0, 5, 10}
 	l := pathing.MakeGridLayer(layerValues[0], layerValues[1], layerValues[2], layerValues[3])
 	coord := pathing.GridCoord{X: 1, Y: 1}
@@ -180,9 +208,13 @@ func TestGridValueChange(t *testing.T) {
 }
 
 func TestSmallGrid(t *testing.T) {
-	p := pathing.NewGrid(9*pathing.CellSize, 6*pathing.CellSize, 0)
+	p := pathing.NewGrid(pathing.GridConfig{
+		WorldWidth:  9 * 32,
+		WorldHeight: 6 * 32,
+	})
 
-	numCols, numRows := p.Size()
+	numCols := p.NumCols()
+	numRows := p.NumRows()
 	if numCols != 9 || numRows != 6 {
 		t.Fatalf("expected [9,6] size, got [%d,%d]", numCols, numRows)
 	}
@@ -220,7 +252,10 @@ func TestSmallGrid(t *testing.T) {
 }
 
 func TestGrid(t *testing.T) {
-	p := pathing.NewGrid(1856, 1856, 0)
+	p := pathing.NewGrid(pathing.GridConfig{
+		WorldWidth:  1856,
+		WorldHeight: 1856,
+	})
 
 	tests := []pathing.GridCoord{
 		{X: 0, Y: 0},
