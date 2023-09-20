@@ -123,6 +123,30 @@ Some terminology hints:
 
 Note that it's possible to convert between the GridCoord and world positions via the `Grid` type API.
 
+## Greedy BFS paths quality
+
+You may be concerned about the Greedy BFS vs A* results. Due to a couple of tricks I used during the implementation, an unexpected thing happened: some of the paths are actually better than you would expect from a Greedy BFS.
+
+<table>
+	<tr>
+		<td>A* (21 steps)</td>
+		<td>Greedy BFS (27 steps)</td>
+		<td>This library (21 steps)</td>
+	<tr>
+		<td>
+			<img src="https://github.com/quasilyte/pathing/assets/6286655/ba657850-8321-4586-80bd-5e466fa3504c">
+		</td>
+		<td>
+			<img src="https://github.com/quasilyte/pathing/assets/6286655/bef9228a-2b0b-4f6d-a5a3-c676c96149e5">
+		</td>
+		<td>
+			<img src="https://github.com/quasilyte/pathing/assets/6286655/b1da357d-5a9c-40b2-a0d0-e8c6a4bbfdea">
+		</td>
+	</tr>
+</table>
+
+This library worked well enough for me even without A*; although I may implement it later.
+
 ## Benchmarks & Performance
 
 See [_bench](_bench) folder to reproduce the results.
