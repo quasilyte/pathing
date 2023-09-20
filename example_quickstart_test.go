@@ -10,9 +10,9 @@ func ExampleQuickStart() {
 	// Grid is a "map" that stores cell info.
 	const cellSize = 40
 	g := pathing.NewGrid(pathing.GridConfig{
-		// A 5x5 map.
+		// A 5x4 map.
 		WorldWidth:  5 * cellSize,
-		WorldHeight: 5 * cellSize,
+		WorldHeight: 4 * cellSize,
 		CellWidth:   cellSize,
 		CellHeight:  cellSize,
 	})
@@ -39,7 +39,6 @@ func ExampleQuickStart() {
 	// . . f . . | [f] - forest
 	// . . f . . | [.] - plain
 	// . . . . .
-	// . . . . .
 	g.SetCellTile(pathing.GridCoord{X: 2, Y: 0}, tileMountain)
 	g.SetCellTile(pathing.GridCoord{X: 2, Y: 1}, tileForest)
 	g.SetCellTile(pathing.GridCoord{X: 2, Y: 2}, tileForest)
@@ -64,13 +63,14 @@ func ExampleQuickStart() {
 	// . . m . . | [m] - mountain
 	// . A f B . | [f] - forest
 	// . . f . . | [.] - plain
-	// . . . . . | [A] - start
-	// . . . . . | [B] - finish
+	// . . . . . | [A] - start, [B] - finish
 	startPos := pathing.GridCoord{X: 1, Y: 1}
 	finishPos := pathing.GridCoord{X: 3, Y: 1}
 
 	// Let's build a normal path first, for a non-flying unit.
 	p := bfs.BuildPath(g, startPos, finishPos, normalLayer)
+
+	// The path reads as: Down, Down, Right, Right, Up, Up.
 	fmt.Println(p.Steps.String(), "- normal layer path")
 
 	// You can iterate the path.
