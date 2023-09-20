@@ -145,7 +145,9 @@ You may be concerned about the Greedy BFS vs A* results. Due to a couple of tric
 	</tr>
 </table>
 
-This library worked well enough for me even without A*; although I may implement it later.
+This library worked well enough for me even without A*; although I may implement it later as an addition (without removing the Greedy BFS).
+
+The greedy BFS has some advantages like requiring less memory and generally being faster for the most cases.
 
 ## Benchmarks & Performance
 
