@@ -35,6 +35,10 @@ Some games that use this library:
 
 ## Quick Start
 
+```bash
+$ go get github.com/quasilyte/pathing
+```
+
 This is a simplified example. See the [full example](example_detailed_test.go) if you want to learn more.
 
 ```go
