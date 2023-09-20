@@ -1,8 +1,9 @@
 package pathing
 
-//go:generate stringer -type=Direction -trimprefix=Dir
+// Direction is a simple enumeration of movement directions.
 type Direction int
 
+//go:generate stringer -type=Direction -trimprefix=Dir
 const (
 	DirRight Direction = iota
 	DirDown
@@ -11,6 +12,8 @@ const (
 	DirNone // A special sentinel value
 )
 
+// Reversed returns an opposite direction.
+// For instance, DirRight would become DirLeft.
 func (d Direction) Reversed() Direction {
 	switch d {
 	case DirRight:

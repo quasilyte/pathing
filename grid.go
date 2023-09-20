@@ -15,16 +15,37 @@ type Grid struct {
 	fcellHalfHeight float64
 }
 
+// GridConfig is a NewGrid() function parameter.
+// See field comments for more details.
 type GridConfig struct {
+	// WorldWidth and WorldHeight specify the modelled world size.
+	// These are used in combination with cell sizes to map positions
+	// and grid coordinates.
+	// The world size is specified in pixels.
+	// Although the positions are expected to be a pair of float64,
+	// the world size is a pair of uints, because sizes like 200.5 make no sense.
 	WorldWidth  uint
 	WorldHeight uint
 
+	// CellWidth and CellHeight specify the grid cell size.
+	// If the world size is 320x320 and the cell size is 32x32,
+	// that would mean that there are 10x10 (100) cells in total.
+	//
+	// If left unset (0), the default size will be used (32x32).
 	CellWidth  uint
 	CellHeight uint
 
+	// DefaultTile controls the default grid fill.
+	// Only the 2 lower bits matter as a tile tag value can't exceed a value of 3.
+	// This value is a minor option, but it can be used to populate the grid
+	// with the most common tile.
+	// Although it does fill the grid in an optimized way, it's mostly a convenience option
+	// to make the initialization easier.
 	DefaultTile uint8
 }
 
+// NewGrid creates a Grid object.
+// See GridConfig comment to learn more.
 func NewGrid(config GridConfig) *Grid {
 	if config.CellWidth == 0 {
 		config.CellWidth = 32
@@ -76,10 +97,13 @@ func NewGrid(config GridConfig) *Grid {
 	return g
 }
 
+// NumCols returns the number of columns this grid has.
 func (g *Grid) NumCols() int { return int(g.numCols) }
 
+// NumRows returns the number of rows this grid has.
 func (g *Grid) NumRows() int { return int(g.numRows) }
 
+// SetCellTile
 func (g *Grid) SetCellTile(c GridCoord, tileTag uint8) {
 	i := uint(c.Y)*g.numCols + uint(c.X)
 	byteIndex := i / 4
@@ -92,17 +116,32 @@ func (g *Grid) SetCellTile(c GridCoord, tileTag uint8) {
 	}
 }
 
-func (g *Grid) GetCellValue(c GridCoord, l GridLayer) uint8 {
+// GetCellTile returns the cell tile tag.
+// This operation is only useful for the Grid debugging as
+// for the pathfinding tasks you would want to use GetCellCost() method instead.
+func (g *Grid) GetCellTile(c GridCoord) uint8 {
+	x := uint(c.X)
+	y := uint(c.Y)
+	i := y*g.numCols + x
+	byteIndex := i / 4
+	shift := (i % 4) * 2
+	return ((readByte(g.bytes, byteIndex)) >> shift) & 0b11
+}
+
+// GetCellCost returns a travelling cost for a given cell as specified in the layer.
+// The return value interpreted as this: 0 is a blocked path while any other value
+// is a travelling cost.
+func (g *Grid) GetCellCost(c GridCoord, l GridLayer) uint8 {
 	x := uint(c.X)
 	y := uint(c.Y)
 	if x >= g.numCols || y >= g.numRows {
 		// Consider out of bound cells as blocked.
 		return 0
 	}
-	return g.getCellValue(x, y, l)
+	return g.getCellCost(x, y, l)
 }
 
-func (g *Grid) getCellValue(x, y uint, l GridLayer) uint8 {
+func (g *Grid) getCellCost(x, y uint, l GridLayer) uint8 {
 	i := y*g.numCols + x
 	byteIndex := i / 4
 	shift := (i % 4) * 2
@@ -110,10 +149,13 @@ func (g *Grid) getCellValue(x, y uint, l GridLayer) uint8 {
 	return l.getFast(tileTag)
 }
 
+// AlignPos is an easy way to center the world position inside a grid cell.
+// For instance, with a cell size of 32x32, a {10,10} pos would become {16,16}.
 func (g *Grid) AlignPos(x, y float64) (float64, float64) {
 	return g.CoordToPos(g.PosToCoord(x, y))
 }
 
+// PosToCoord converts a world position into a grid coord.
 func (g *Grid) PosToCoord(x, y float64) GridCoord {
 	return GridCoord{
 		X: int(x) / g.cellWidth,
@@ -121,19 +163,24 @@ func (g *Grid) PosToCoord(x, y float64) GridCoord {
 	}
 }
 
+// CoordToPos converts a grid coord into a world position.
 func (g *Grid) CoordToPos(cell GridCoord) (float64, float64) {
 	x := (float64(cell.X) * g.fcellWidth) + g.fcellHalfWidth
 	y := (float64(cell.Y) * g.fcellHeight) + g.fcellHalfHeight
 	return x, y
 }
 
+// PackCoord returns a packed version of a grid coordinate.
+// It can be useful to get an efficient map key.
+// A packed coordinate can later be unpacked with UnpackCoord() method.
+func (g *Grid) PackCoord(cell GridCoord) uint32 {
+	return uint32(cell.X) | uint32(cell.Y<<16)
+}
+
+// UnpackCoord takes a packed coord and returns its unpacked version.
 func (g *Grid) UnpackCoord(v uint32) GridCoord {
 	u32 := uint32(v)
 	x := int(u32 & 0xffff)
 	y := int(u32 >> 16)
 	return GridCoord{X: x, Y: y}
-}
-
-func (g *Grid) PackCoord(cell GridCoord) uint32 {
-	return uint32(cell.X) | uint32(cell.Y<<16)
 }

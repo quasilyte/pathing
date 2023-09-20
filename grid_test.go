@@ -42,7 +42,7 @@ func TestEmptyGrid(t *testing.T) {
 
 	l := pathing.MakeGridLayer([4]uint8{1, 0, 1, 1})
 	for _, pos := range positions {
-		if p.GetCellValue(p.PosToCoord(pos.XY()), l) != 0 {
+		if p.GetCellCost(p.PosToCoord(pos.XY()), l) != 0 {
 			t.Fatalf("empty grid reported %v as free", pos)
 		}
 	}
@@ -89,7 +89,7 @@ func TestGridOutOfBounds(t *testing.T) {
 
 	l := pathing.MakeGridLayer([4]uint8{1, 0, 1, 1})
 	for _, coord := range coords {
-		if p.GetCellValue(coord, l) != 0 {
+		if p.GetCellCost(coord, l) != 0 {
 			t.Fatalf("grid reported out-of-bounds %v as free", coord)
 		}
 	}
@@ -121,11 +121,11 @@ func TestGridMaps(t *testing.T) {
 				cell := pathing.GridCoord{X: col, Y: row}
 				switch marker {
 				case 'x':
-					if parsed.grid.GetCellValue(cell, l) != 0 {
+					if parsed.grid.GetCellCost(cell, l) != 0 {
 						t.Fatalf("test%d: x cell is reported as free", i)
 					}
 				case '.', ' ':
-					if parsed.grid.GetCellValue(cell, l) != 1 {
+					if parsed.grid.GetCellCost(cell, l) != 1 {
 						t.Fatalf("test%d: empty/free cell is reported as marked", i)
 					}
 				}
@@ -158,11 +158,11 @@ func TestRandFillGrid(t *testing.T) {
 			c := pathing.GridCoord{X: x, Y: y}
 			tag := layers[y][x]
 			p.SetCellTile(c, tag)
-			v := p.GetCellValue(c, l)
+			v := p.GetCellCost(c, l)
 			if v != values[tag] {
 				t.Fatalf("grid[%d][%d] value mismatch: have %v, want %v", y, x, v, values[tag])
 			}
-			v2 := p.GetCellValue(c, l2)
+			v2 := p.GetCellCost(c, l2)
 			if v2 != values2[tag] {
 				t.Fatalf("grid[%d][%d] value2 mismatch: have %v, want %v", y, x, v2, values2[tag])
 			}
@@ -201,7 +201,7 @@ func TestGridValueChange(t *testing.T) {
 	for _, probe := range probes {
 		want := layerValues[probe]
 		p.SetCellTile(coord, probe)
-		if have := p.GetCellValue(coord, l); have != want {
+		if have := p.GetCellCost(coord, l); have != want {
 			t.Fatalf("SetCellTile(%v, %v): have %v, want %v", coord, probe, have, want)
 		}
 	}
@@ -225,7 +225,7 @@ func TestSmallGrid(t *testing.T) {
 	for y := 0; y < numRows; y++ {
 		for x := 0; x < numCols; x++ {
 			c := pathing.GridCoord{X: x, Y: y}
-			if p.GetCellValue(c, l) != 10 {
+			if p.GetCellCost(c, l) != 10 {
 				t.Fatalf("empty grid (size %d) reports in-bounds %v as marked", numCells, c)
 			}
 		}
@@ -244,7 +244,7 @@ func TestSmallGrid(t *testing.T) {
 			c := pathing.GridCoord{X: x, Y: y}
 			tag := uint8((y*numCols + x) % 4)
 			v := values[tag]
-			if actual := p.GetCellValue(c, l); actual != v {
+			if actual := p.GetCellCost(c, l); actual != v {
 				t.Fatalf("expected %v value to be %v, got %v", c, v, actual)
 			}
 		}
@@ -277,17 +277,17 @@ func TestGrid(t *testing.T) {
 
 	l := pathing.MakeGridLayer([4]uint8{0, 1, 2, 3})
 	for i, test := range tests {
-		if p.GetCellValue(test, l) != 0 {
-			t.Fatalf("GetCellValue(%d, %d) returned true before it was set", test.X, test.Y)
+		if p.GetCellCost(test, l) != 0 {
+			t.Fatalf("GetCellCost(%d, %d) returned true before it was set", test.X, test.Y)
 		}
 		p.SetCellTile(test, 1)
-		if p.GetCellValue(test, l) != 1 {
-			t.Fatalf("GetCellValue(%d, %d) returned false after it was set", test.X, test.Y)
+		if p.GetCellCost(test, l) != 1 {
+			t.Fatalf("GetCellCost(%d, %d) returned false after it was set", test.X, test.Y)
 		}
 		for j := i + 1; j < len(tests); j++ {
 			otherTest := tests[j]
-			if p.GetCellValue(otherTest, l) != 0 {
-				t.Fatalf("unrelated GetCellValue(%d, %d) returned true after (%d, %d) was set", otherTest.X, otherTest.Y, test.X, test.Y)
+			if p.GetCellCost(otherTest, l) != 0 {
+				t.Fatalf("unrelated GetCellCost(%d, %d) returned true after (%d, %d) was set", otherTest.X, otherTest.Y, test.X, test.Y)
 			}
 		}
 	}

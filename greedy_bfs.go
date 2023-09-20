@@ -7,15 +7,30 @@ var neighborOffsets = [4]GridCoord{
 	{Y: -1},
 }
 
+// GreedyBFS implements a greedy best-first search pathfinding algorithm.
+// You must use NewGreedyBFS() function to obtain an instance of this type.
+//
+// Once created, you should re-use it to build paths.
+// Do not throw the instance away after building the path once.
 type GreedyBFS struct {
 	pqueue     *priorityQueue[weightedGridCoord]
 	coordSlice []weightedGridCoord
 	coordMap   *coordMap
 }
 
+// BuildPathResult is a BuildPath() method return value.
 type BuildPathResult struct {
-	Steps   GridPath
-	Finish  GridCoord
+	// Steps is an actual path that was constructed.
+	Steps GridPath
+
+	// Finish is where the constructed path ends.
+	// It's mostly needed in case of a partial result,
+	// since you can build another path from this coord right away.
+	Finish GridCoord
+
+	// Whether this is a partial path result.
+	// This happens if the destination can't be reached
+	// or if it's too far away.
 	Partial bool
 }
 
@@ -24,6 +39,14 @@ type weightedGridCoord struct {
 	Weight int
 }
 
+// NewGreedyBFS creates a ready-to-use GreedyBFS object.
+//
+// numCols and numRows should be the same as in the Grid
+// objects that are going to be used with this pathfinder.
+// Grid.NumCols() and Grid.NumRows() methods will come in handy.
+//
+// Note that you can use different grids with the same
+// pathfinder, but they should be of the same size.
 func NewGreedyBFS(numCols, numRows int) *GreedyBFS {
 	coordMapCols := gridMapSide
 	if numCols < coordMapCols {
@@ -41,6 +64,10 @@ func NewGreedyBFS(numCols, numRows int) *GreedyBFS {
 	}
 }
 
+// BuildPath attempts to find a path between the two coordinates.
+// It will use a provided Grid in combination with a GridLayer.
+// The Grid is expected to store the tile tags and the GridLayer is
+// used to interpret these tags.
 func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildPathResult {
 	var result BuildPathResult
 	if from == to {
@@ -103,7 +130,7 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 			if cx >= g.numCols || cy >= g.numRows {
 				continue
 			}
-			if g.getCellValue(cx, cy, l) == 0 {
+			if g.getCellCost(cx, cy, l) == 0 {
 				continue
 			}
 			pathmapKey := pathmap.packCoord(next)
