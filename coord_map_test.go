@@ -25,7 +25,7 @@ func BenchmarkCoordMapSet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		m.Reset()
 		for j := 0; j < 8; j++ {
-			m.Set(uint(j), DirUp)
+			m.Set(uint(j), uint32(DirUp))
 		}
 	}
 }
@@ -33,12 +33,12 @@ func BenchmarkCoordMapSet(b *testing.B) {
 func BenchmarkCoordMapGet(b *testing.B) {
 	m := newCoordMap(8, 8)
 	for j := 0; j < 8; j++ {
-		m.Set(uint(j), DirUp)
+		m.Set(uint(j), uint32(DirUp))
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < 8; j++ {
-			_ = m.Get(uint(j))
+			_, _ = m.Get(uint(j))
 		}
 	}
 }
@@ -65,7 +65,10 @@ func TestEmptyCoordMap(t *testing.T) {
 	}
 
 	for _, coord := range coords {
-		if m.Get(m.packCoord(coord)) != DirNone {
+		if v, ok := m.Get(m.packCoord(coord)); v != 0 || ok {
+			t.Fatalf("empty coord map returns invalid result for %v", coord)
+		}
+		if m.Contains(m.packCoord(coord)) {
 			t.Fatalf("empty coord map returns invalid result for %v", coord)
 		}
 	}
@@ -89,29 +92,32 @@ func TestCoordMap(t *testing.T) {
 	}
 
 	for i, coord := range coords {
-		if m.Get(m.packCoord(coord)) != DirNone {
-			t.Fatalf("Get(%v) expected to give None before insertion", coord)
+		if v, ok := m.Get(m.packCoord(coord)); v != 0 || ok {
+			t.Fatalf("Get(%v) expected to give 0 before insertion", coord)
+		}
+		if m.Contains(m.packCoord(coord)) {
+			t.Fatalf("Contains(%v) expected to give false before insertion", coord)
 		}
 		dir := Direction(i % 4)
-		m.Set(m.packCoord(coord), dir)
+		m.Set(m.packCoord(coord), uint32(dir))
 		for j := 0; j < 3; j++ {
-			if got := m.Get(m.packCoord(coord)); got != dir {
-				t.Fatalf("Get(%v) gives %s, expected %s", coord, got, dir)
+			if v, ok := m.Get(m.packCoord(coord)); !ok || Direction(v) != dir {
+				t.Fatalf("Get(%v) gives %s, expected %s", coord, Direction(v), dir)
 			}
 		}
 		dir = Direction(3 - (i % 4))
-		m.Set(m.packCoord(coord), dir)
+		m.Set(m.packCoord(coord), uint32(dir))
 		for j := 0; j < 3; j++ {
-			if got := m.Get(m.packCoord(coord)); got != dir {
-				t.Fatalf("Get(%v) gives %s, expected %s", coord, got, dir)
+			if v, ok := m.Get(m.packCoord(coord)); !ok || Direction(v) != dir {
+				t.Fatalf("Get(%v) gives %s, expected %s", coord, Direction(v), dir)
 			}
 		}
 		for _, otherCoord := range coords[i:] {
 			if coord == otherCoord {
 				continue
 			}
-			if got := m.Get(m.packCoord(otherCoord)); got != DirNone {
-				t.Fatalf("unrelated Get(%v) after Set(%v) gives %s, expected None", otherCoord, coord, got)
+			if m.Contains(m.packCoord(otherCoord)) {
+				t.Fatalf("unrelated Contains(%v) after Set(%v) reports true", otherCoord, coord)
 			}
 		}
 	}

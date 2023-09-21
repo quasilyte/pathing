@@ -32,6 +32,11 @@ type BuildPathResult struct {
 	// since you can build another path from this coord right away.
 	Finish GridCoord
 
+	// Cost is a path final movement cost.
+	// The BFS will set this value to a Manhattan distance.
+	// The A* will assign the actual computed cost.
+	Cost int
+
 	// Whether this is a partial path result.
 	// This happens if the destination can't be reached
 	// or if it's too far away.
@@ -54,13 +59,6 @@ type GreedyBFSConfig struct {
 }
 
 // NewGreedyBFS creates a ready-to-use GreedyBFS object.
-//
-// numCols and numRows should be the same as in the Grid
-// objects that are going to be used with this pathfinder.
-// Grid.NumCols() and Grid.NumRows() methods will come in handy.
-//
-// Note that you can use different grids with the same
-// pathfinder, but they should be of the same size.
 func NewGreedyBFS(config GreedyBFSConfig) *GreedyBFS {
 	if config.NumCols == 0 {
 		config.NumCols = gridMapSide
@@ -91,6 +89,9 @@ func NewGreedyBFS(config GreedyBFSConfig) *GreedyBFS {
 // It will use a provided Grid in combination with a GridLayer.
 // The Grid is expected to store the tile tags and the GridLayer is
 // used to interpret these tags.
+//
+// GreedyBFS treats 0 as "blocked" and any other value as "passable".
+// If you need a cost-based pathfinding, use AStar instead.
 func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildPathResult {
 	var result BuildPathResult
 	if from == to {
@@ -99,13 +100,7 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 	}
 
 	// Find a search box origin pos. We need these to translate the local coordinates later.
-	origin := GridCoord{}
-	if originX := from.X - gridPathMaxLen; originX > 0 {
-		origin.X = originX
-	}
-	if originY := from.Y - gridPathMaxLen; originY > 0 {
-		origin.Y = originY
-	}
+	origin := findPathOrigin(from)
 
 	// These will be in local coordinates.
 	localStart := from.Sub(origin)
@@ -133,8 +128,9 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 		}
 
 		if current.Coord == localGoal {
-			result.Steps = bfs.constructPath(localStart, localGoal, pathmap)
+			result.Steps = constructPath(localStart, localGoal, pathmap)
 			result.Finish = to
+			result.Cost = result.Steps.Len()
 			foundPath = true
 			break
 		}
@@ -147,6 +143,7 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 			shortestDist = dist
 			fallbackCoord = current.Coord
 		}
+
 		for dir, offset := range &neighborOffsets {
 			next := current.Coord.Add(offset)
 			cx := uint(next.X) + uint(origin.X)
@@ -158,10 +155,10 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 				continue
 			}
 			pathmapKey := pathmap.packCoord(next)
-			if pathmap.Get(pathmapKey) != DirNone {
+			if pathmap.Contains(pathmapKey) {
 				continue
 			}
-			pathmap.Set(pathmapKey, Direction(dir))
+			pathmap.Set(pathmapKey, uint32(dir))
 			nextDist := localGoal.Dist(next)
 			nextWeighted := weightedGridCoord{
 				Coord: next,
@@ -178,8 +175,9 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 	}
 
 	if !foundPath {
-		result.Steps = bfs.constructPath(localStart, fallbackCoord, pathmap)
+		result.Steps = constructPath(localStart, fallbackCoord, pathmap)
 		result.Finish = fallbackCoord.Add(origin)
+		result.Cost = result.Steps.Len()
 		result.Partial = true
 	}
 
@@ -187,24 +185,5 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 	// save that extra capacity for later.
 	bfs.coordSlice = hotFrontier[:0]
 
-	return result
-}
-
-func (bfs *GreedyBFS) constructPath(from, to GridCoord, pathmap *coordMap) GridPath {
-	// We walk from the finish point towards the start.
-	// The directions are pushed in that order and would lead
-	// to a reversed path, but since GridPath does its iteration
-	// in reversed order itself, we don't need to do any
-	// post-build reversal here.
-	var result GridPath
-	pos := to
-	for {
-		d := pathmap.Get(pathmap.packCoord(pos))
-		if pos == from {
-			break
-		}
-		result.push(d)
-		pos = pos.reversedMove(d)
-	}
 	return result
 }
