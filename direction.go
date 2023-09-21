@@ -1,6 +1,6 @@
 package pathing
 
-// Direction is a simple enumeration of movement directions.
+// Direction is a simple enumeration of axial movement directions.
 type Direction int
 
 //go:generate stringer -type=Direction -trimprefix=Dir
