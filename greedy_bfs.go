@@ -10,6 +10,10 @@ var neighborOffsets = [4]GridCoord{
 // GreedyBFS implements a greedy best-first search pathfinding algorithm.
 // You must use NewGreedyBFS() function to obtain an instance of this type.
 //
+// GreedyBFS is a faster pathfinder with a lower memory costs as compared to an AStar.
+// It can't handle different movements costs though, so it will treat any non-zero
+// value returned by GridLayer identically.
+//
 // Once created, you should re-use it to build paths.
 // Do not throw the instance away after building the path once.
 type GreedyBFS struct {
