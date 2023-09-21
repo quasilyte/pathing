@@ -53,7 +53,7 @@ func main() {
 		CellHeight:  cellSize,
 	})
 
-	// We'll use Greedy BFS pathfinder.
+	// We'll use Greedy BFS pathfinder (A* is also available).
 	bfs := pathing.NewGreedyBFS(pathing.GreedyBFSConfig{})
 
 	// Tile kinds are needed to interpret the cell values.
@@ -131,6 +131,8 @@ Note that it's possible to convert between the GridCoord and world positions via
 
 ## Greedy BFS paths quality
 
+This library provides both greedy best-first search as well as A* algorithms.
+
 You may be concerned about the Greedy BFS vs A* results. Due to a couple of tricks I used during the implementation, an unexpected thing happened: some of the paths are actually better than you would expect from a Greedy BFS.
 
 <table>
@@ -151,9 +153,9 @@ You may be concerned about the Greedy BFS vs A* results. Due to a couple of tric
 	</tr>
 </table>
 
-This library worked well enough for me even without A*; although I may implement it later as an addition (without removing the Greedy BFS).
+This library worked well enough for me even without A*. You still may want to use A* if you need to have different movement costs for tiles.
 
-The greedy BFS has some advantages like requiring less memory and generally being faster for the most cases.
+In general, A* always build an optimal path and can handle cost-based pathfinding. Greedy BFS requires less memory and works faster.
 
 ## Benchmarks & Performance
 
@@ -205,11 +207,12 @@ I hope that my contribution to this lineup will increase the competition, so we 
 Some of my findings that can make these libraries faster:
 
 * Never use `container/heap`; use a generic non-interface version
-* Better yet, try bucket priority queue instead of minheap
+* Better yet, try a bucket priority queue instead of minheap
 * Do not use `map`, prefer something that allows a memory re-use
-  * The [sparse-dense](https://research.swtch.com/sparse) map could be an option here
+* The [sparse-dense](https://research.swtch.com/sparse) is a good structure to consider
 * Allocating the result path slice is expensive; consider deltas (2 bits per step)
 * Interface method calls are slow for a hot loop
 * Try to be cache-friendly; everything that can be packed should be packed
+* Not every game needs A*, don't underestimate the power of a simpler (and faster) algorithm
 
 If you want to learn more details, look at my library implementation and/or see TODO talk link.

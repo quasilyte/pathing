@@ -28,6 +28,7 @@ func MakeGridPath(steps ...Direction) GridPath {
 	for i := len(steps) - 1; i >= 0; i-- {
 		result.push(steps[i])
 	}
+	result.Rewind()
 	return result
 }
 
@@ -106,4 +107,34 @@ func (p *GridPath) get(i byte) Direction {
 		return Direction((p.bytes[byteIndex] >> bitShift) & 0b11)
 	}
 	return DirNone
+}
+
+func constructPath(from, to GridCoord, pathmap *coordMap) GridPath {
+	// We walk from the finish point towards the start.
+	// The directions are pushed in that order and would lead
+	// to a reversed path, but since GridPath does its iteration
+	// in reversed order itself, we don't need to do any
+	// post-build reversal here.
+	var result GridPath
+	pos := to
+	for {
+		d, _ := pathmap.Get(pathmap.packCoord(pos))
+		if pos == from {
+			break
+		}
+		result.push(Direction(d))
+		pos = pos.reversedMove(Direction(d))
+	}
+	return result
+}
+
+func findPathOrigin(from GridCoord) GridCoord {
+	origin := GridCoord{}
+	if originX := from.X - gridPathMaxLen; originX > 0 {
+		origin.X = originX
+	}
+	if originY := from.Y - gridPathMaxLen; originY > 0 {
+		origin.Y = originY
+	}
+	return origin
 }

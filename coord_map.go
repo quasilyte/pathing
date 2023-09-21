@@ -12,7 +12,7 @@ type coordMap struct {
 }
 
 type coordMapElem struct {
-	value uint8
+	value uint32
 	gen   uint32
 }
 
@@ -26,19 +26,26 @@ func newCoordMap(numCols, numRows int) *coordMap {
 	}
 }
 
-func (m *coordMap) Get(k uint) Direction {
+func (m *coordMap) Contains(k uint) bool {
+	if k < uint(len(m.elems)) {
+		return m.elems[k].gen == m.gen
+	}
+	return false
+}
+
+func (m *coordMap) Get(k uint) (uint32, bool) {
 	if k < uint(len(m.elems)) {
 		el := m.elems[k]
 		if el.gen == m.gen {
-			return Direction(el.value)
+			return el.value, true
 		}
 	}
-	return DirNone
+	return 0, false
 }
 
-func (m *coordMap) Set(k uint, d Direction) {
+func (m *coordMap) Set(k uint, v uint32) {
 	if k < uint(len(m.elems)) {
-		m.elems[k] = coordMapElem{value: uint8(d), gen: m.gen}
+		m.elems[k] = coordMapElem{value: v, gen: m.gen}
 	}
 }
 
@@ -61,8 +68,10 @@ func (m *coordMap) Reset() {
 //go:noinline - called on a cold path, therefore it should not be inlined.
 func (m *coordMap) clear() {
 	m.gen = 1
+
+	// TODO: could use clear() starting from Go 1.21.
 	for i := range m.elems {
-		m.elems[i] = coordMapElem{value: uint8(DirNone), gen: 0}
+		m.elems[i] = coordMapElem{}
 	}
 }
 
