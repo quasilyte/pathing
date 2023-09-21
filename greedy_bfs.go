@@ -51,22 +51,6 @@ type GreedyBFSConfig struct {
 	// if the grids you're going operate on are small.
 	NumCols uint
 	NumRows uint
-
-	// CostBased enables a more complicated pathfinding that would treat
-	// every layer-mapped value as a traversal cost.
-	// Otherwise, any non-zero value would be treated identically as a "can pass" value.
-	//
-	// If all your layers only use only 1s and 0s, keep this setting set to false.
-	// Doing a cost-based resolution is more expensive.
-	//
-	// If CostBased=true and you use a GridLayer with [0-1] values, the algorithm
-	// will recognize this and run a faster version anyway.
-	// The only difference would be that the GreedyBFS object itself will
-	// allocate some extra memory to be able to handle a cost-based resolution.
-	//
-	// This means that you don't need 2 instances of the GreedyBFS even if you have
-	// mixed GridLayer objects: simple (ones and zeros) and cost-based ones.
-	CostBased bool
 }
 
 // NewGreedyBFS creates a ready-to-use GreedyBFS object.

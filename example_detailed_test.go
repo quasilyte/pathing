@@ -20,9 +20,8 @@ func Example() {
 	// We'll use Greedy BFS pathfinder.
 	// Re-use it, don't create a new BFS every time.
 	bfs := pathing.NewGreedyBFS(pathing.GreedyBFSConfig{
-		NumCols:   uint(g.NumCols()),
-		NumRows:   uint(g.NumRows()),
-		CostBased: false,
+		NumCols: uint(g.NumCols()),
+		NumRows: uint(g.NumRows()),
 	})
 
 	// Tile kinds are needed to interpret the cell values.
