@@ -5,12 +5,12 @@ package pathing
 //
 // If the grid cell size is 32x32, then this table can explain the mapping:
 //
-//	pos{0, 0}   => coord{0, 0}
-//	pos{16, 16} => coord{0, 0}
-//	pos{20, 20} => coord{0, 0}
-//	pos{35, 10} => coord{1, 0}
-//	pos{50, 50} => coord{1, 1}
-//	pos{90, 90} => coord{2, 2}
+//   - pos{0, 0}   => coord{0, 0}
+//   - pos{16, 16} => coord{0, 0}
+//   - pos{20, 20} => coord{0, 0}
+//   - pos{35, 10} => coord{1, 0}
+//   - pos{50, 50} => coord{1, 1}
+//   - pos{90, 90} => coord{2, 2}
 type GridCoord struct {
 	X int
 	Y int
@@ -52,8 +52,8 @@ func (c GridCoord) reversedMove(d Direction) GridCoord {
 // It's possible to get an out-of-bounds coordinate that
 // will not belong to a Grid.
 //
-//	{2,2}.Move(DirLeft) would give {1,2}
-//	{2,2}.Move(DirDown) would give {2,3}
+//   - {2,2}.Move(DirLeft) would give {1,2}
+//   - {2,2}.Move(DirDown) would give {2,3}
 func (c GridCoord) Move(d Direction) GridCoord {
 	switch d {
 	case DirRight:
