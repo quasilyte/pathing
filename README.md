@@ -139,7 +139,7 @@ You may be concerned about the Greedy BFS vs A* results. Due to a couple of tric
 	<tr>
 		<td>A* (21 steps)</td>
 		<td>Greedy BFS (27 steps)</td>
-		<td>This library (21 steps)</td>
+		<td>This library's BFS (21 steps)</td>
 	<tr>
 		<td>
 			<img src="https://github.com/quasilyte/pathing/assets/6286655/ba657850-8321-4586-80bd-5e466fa3504c">
