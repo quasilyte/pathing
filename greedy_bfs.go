@@ -106,6 +106,7 @@ func NewGreedyBFS(config GreedyBFSConfig) *GreedyBFS {
 func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildPathResult {
 	var result BuildPathResult
 	if from == to {
+		result.Finish = to
 		return result
 	}
 
@@ -145,7 +146,7 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 
 		if current.Coord == localGoal {
 			result.Steps = bfs.constructPath(localStart, localGoal, pathmap)
-			result.Finish = current.Coord.Add(origin)
+			result.Finish = to
 			foundPath = true
 			break
 		}
