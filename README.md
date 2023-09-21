@@ -176,7 +176,8 @@ Time - **ns/op**:
 
 | Library | no_wall | simple_wall | multi_wall |
 |---|---|---|---|
-| quasilyte/pathing | 3525 | 2084 | 2688 |
+| quasilyte/pathing BFS | 3525 | 2084 | 2688 |
+| quasilyte/pathing A* | 20140 | 3415 | 13310 |
 | fzipp/astar | 948367 | 1554290 | 1842812 |
 | beefsack/go-astar | 453939 | 939300 | 1032581 |
 | s0rg/grid | 1816039 | 1154117 | 1189989 |
@@ -186,7 +187,8 @@ Allocations - **allocs/op**:
 
 | Library | no_wall | simple_wall | multi_wall |
 |---|---|---|---|
-| quasilyte/pathing | 0 | 0 | 0 |
+| quasilyte/pathing BFS | 0 | 0 | 0 |
+| quasilyte/pathing A* | 0 | 0 | 0 |
 | fzipp/astar | 2008 | 3677 | 3600 |
 | beefsack/go-astar | 529 | 1347 | 1557 |
 | s0rg/grid | 2976 | 1900 | 1759 |
@@ -196,7 +198,8 @@ Allocations -  **bytes/op**:
 
 | Library | no_wall | simple_wall | multi_wall |
 |---|---|---|---|
-| quasilyte/pathing | 0 | 0 | 0 |
+| quasilyte/pathing BFS | 0 | 0 | 0 |
+| quasilyte/pathing A* | 0 | 0 | 0 |
 | fzipp/astar | 337336 | 511908 | 722690 |
 | beefsack/go-astar | 43653 | 93122 | 130731 |
 | s0rg/grid | 996889 | 551976 | 740523 |

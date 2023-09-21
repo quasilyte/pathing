@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/beefsack/go-astar v0.0.0-20200827232313-4ecf9e304482
 	github.com/fzipp/astar v0.2.0
-	github.com/quasilyte/pathing v0.0.0-20230920175739-f09a6a6e624b
+	github.com/quasilyte/pathing v0.0.0-20230921143848-ee7e478e4bd6
 	github.com/s0rg/grid v1.4.0
 	github.com/solarlune/paths v0.0.0-20230130082802-0494358a2ca6
 )

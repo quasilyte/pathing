@@ -6,20 +6,23 @@ import (
 
 var pathingLayer = pathing.MakeGridLayer([4]uint8{1, 0, 0, 0})
 
-type quasilytePathingTester struct {
+type quasilytePathingBFSTester struct {
 	tc *testCase
 
 	grid *pathing.Grid
 	bfs  *pathing.GreedyBFS
 }
 
-func newQuasilytePathingTester() *quasilytePathingTester {
-	return &quasilytePathingTester{}
+func newQuasilytePathingBFSTester() *quasilytePathingBFSTester {
+	return &quasilytePathingBFSTester{}
 }
 
-func (t *quasilytePathingTester) Init(tc *testCase) {
+func (t *quasilytePathingBFSTester) Init(tc *testCase) {
 	t.tc = tc
-	t.bfs = pathing.NewGreedyBFS(tc.numCols, tc.numRows)
+	t.bfs = pathing.NewGreedyBFS(pathing.GreedyBFSConfig{
+		NumCols: uint(tc.numCols),
+		NumRows: uint(tc.numRows),
+	})
 	width := tc.cellWidth * tc.numCols
 	height := tc.cellHeight * tc.numRows
 	t.grid = pathing.NewGrid(pathing.GridConfig{
@@ -28,7 +31,7 @@ func (t *quasilytePathingTester) Init(tc *testCase) {
 	})
 }
 
-func (t *quasilytePathingTester) BuildPath() (pathing.GridPath, gridCoord) {
+func (t *quasilytePathingBFSTester) BuildPath() (pathing.GridPath, gridCoord) {
 	from := pathing.GridCoord{X: t.tc.start.X, Y: t.tc.start.Y}
 	to := pathing.GridCoord{X: t.tc.finish.X, Y: t.tc.finish.Y}
 	result := t.bfs.BuildPath(t.grid, from, to, pathingLayer)
