@@ -29,7 +29,10 @@ func runPathfindTest(t *testing.T, test pathfindTestCase, constructor func(uint,
 	runTestOnce := func(t *testing.T, test pathfindTestCase, m []string, parseResult testGrid, impl pathBuilder, grid *pathing.Grid) {
 		t.Helper()
 
-		l := pathing.MakeGridLayer([4]uint8{1, 0, 2, 3})
+		l := test.layer
+		if l == 0 {
+			l = pathing.MakeGridLayer([4]uint8{1, 0, 2, 3})
+		}
 
 		result := impl.BuildPath(grid, parseResult.start, parseResult.dest, l)
 		path := result.Steps
@@ -56,7 +59,11 @@ func runPathfindTest(t *testing.T, test pathfindTestCase, constructor func(uint,
 				t.Fatal("visited one cell more than once")
 			case '.':
 				haveRows[pos.Y][pos.X] = ' '
-			case 'O', 'W', 'o', 'w':
+			case 'o':
+				haveRows[pos.Y][pos.X] = 'O'
+			case 'w':
+				haveRows[pos.Y][pos.X] = 'W'
+			case 'O', 'W':
 				haveRows[pos.Y][pos.X] = marker
 			default:
 				panic(fmt.Sprintf("unexpected %c marker", marker))
@@ -228,6 +235,7 @@ type pathfindTestCase struct {
 	name    string
 	path    []string
 	cost    int
+	layer   pathing.GridLayer
 	partial bool
 	bench   bool
 }

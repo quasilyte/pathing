@@ -717,4 +717,29 @@ var astarTests = []pathfindTestCase{
 		bench:   true,
 		partial: true,
 	},
+
+	{
+		name: "cost1",
+		path: []string{
+			"...O    .",
+			"...Owww .",
+			"...OOAw$.",
+			"wwwwwww..",
+			".........",
+		},
+		layer: pathing.MakeGridLayer([4]uint8{1, 0, 2, 14}),
+		cost:  14,
+	},
+	{
+		name: "cost2",
+		path: []string{
+			"...o.....",
+			"...owww..",
+			"...ooAW$.",
+			"wwwwwww..",
+			".........",
+		},
+		layer: pathing.MakeGridLayer([4]uint8{2, 0, 5, 17}),
+		cost:  19,
+	},
 }
