@@ -39,6 +39,32 @@ type weightedGridCoord struct {
 	Weight int
 }
 
+type GreedyBFSConfig struct {
+	// NumCols and NumRows are size hints for the GreedyBFS constructor.
+	// Grid.NumCols() and Grid.NumRows() methods will come in handy to initialize these.
+	// If you keep them at 0, the max amount of the working space will be allocated.
+	// It's like a size hint: the constructor may allocate a smaller working area
+	// if the grids you're going operate on are small.
+	NumCols uint
+	NumRows uint
+
+	// CostBased enables a more complicated pathfinding that would treat
+	// every layer-mapped value as a traversal cost.
+	// Otherwise, any non-zero value would be treated identically as a "can pass" value.
+	//
+	// If all your layers only use only 1s and 0s, keep this setting set to false.
+	// Doing a cost-based resolution is more expensive.
+	//
+	// If CostBased=true and you use a GridLayer with [0-1] values, the algorithm
+	// will recognize this and run a faster version anyway.
+	// The only difference would be that the GreedyBFS object itself will
+	// allocate some extra memory to be able to handle a cost-based resolution.
+	//
+	// This means that you don't need 2 instances of the GreedyBFS even if you have
+	// mixed GridLayer objects: simple (ones and zeros) and cost-based ones.
+	CostBased bool
+}
+
 // NewGreedyBFS creates a ready-to-use GreedyBFS object.
 //
 // numCols and numRows should be the same as in the Grid
@@ -47,21 +73,30 @@ type weightedGridCoord struct {
 //
 // Note that you can use different grids with the same
 // pathfinder, but they should be of the same size.
-func NewGreedyBFS(numCols, numRows int) *GreedyBFS {
-	coordMapCols := gridMapSide
-	if numCols < coordMapCols {
-		coordMapCols = numCols
+func NewGreedyBFS(config GreedyBFSConfig) *GreedyBFS {
+	if config.NumCols == 0 {
+		config.NumCols = gridMapSide
 	}
-	coordMapRows := gridMapSide
-	if numRows < coordMapRows {
-		coordMapRows = numRows
+	if config.NumRows == 0 {
+		config.NumRows = gridMapSide
 	}
 
-	return &GreedyBFS{
+	coordMapCols := gridMapSide
+	if int(config.NumCols) < coordMapCols {
+		coordMapCols = int(config.NumCols)
+	}
+	coordMapRows := gridMapSide
+	if int(config.NumRows) < coordMapRows {
+		coordMapRows = int(config.NumRows)
+	}
+
+	bfs := &GreedyBFS{
 		pqueue:     newPriorityQueue[weightedGridCoord](),
 		coordMap:   newCoordMap(coordMapCols, coordMapRows),
 		coordSlice: make([]weightedGridCoord, 0, 40),
 	}
+
+	return bfs
 }
 
 // BuildPath attempts to find a path between the two coordinates.

@@ -54,8 +54,7 @@ func main() {
 	})
 
 	// We'll use Greedy BFS pathfinder.
-	// Re-use it, don't create a new BFS every time.
-	bfs := pathing.NewGreedyBFS(g.NumCols(), g.NumRows())
+	bfs := pathing.NewGreedyBFS(pathing.GreedyBFSConfig{})
 
 	// Tile kinds are needed to interpret the cell values.
 	// Let's define some.
