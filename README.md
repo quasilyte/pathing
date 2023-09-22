@@ -213,6 +213,7 @@ Some of my findings that can make these libraries faster:
 * Better yet, try a bucket priority queue instead of minheap
 * Do not use `map`, prefer something that allows a memory re-use
 * The [sparse-dense](https://research.swtch.com/sparse) is a good structure to consider
+* The [generations array](https://quasilyte.dev/blog/post/gen-map/) is also a good option
 * Allocating the result path slice is expensive; consider deltas (2 bits per step)
 * Interface method calls are slow for a hot loop
 * Try to be cache-friendly; everything that can be packed should be packed
