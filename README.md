@@ -19,7 +19,7 @@ Both of these limitations can be worked around:
 1. Connect the partial results to traverse a bigger map
 2. Use different "layers" for different biomes
 
-To learn more about this library and its internals, see this presentation: TODO link.
+To learn more about this library and its internals, see [this presentation](https://speakerdeck.com/quasilyte/zero-alloc-pathfinding).
 
 When to use this library?
 
@@ -219,4 +219,4 @@ Some of my findings that can make these libraries faster:
 * Try to be cache-friendly; everything that can be packed should be packed
 * Not every game needs A*, don't underestimate the power of a simpler (and faster) algorithm
 
-If you want to learn more details, look at my library implementation and/or see TODO talk link.
+If you want to learn more details, look at my library implementation and/or see [these slides](https://speakerdeck.com/quasilyte/zero-alloc-pathfinding).
