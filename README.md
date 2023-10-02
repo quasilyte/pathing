@@ -31,6 +31,7 @@ If you answer "yes" to both, consider using this library.
 Some games that use this library:
 
 * [Roboden](https://store.steampowered.com/app/2416030/Roboden/)
+* [Cavebots](https://quasilyte.itch.io/cavebots)
 * [Assemblox](https://itch.io/jam/gmtk-2023/rate/2157747)
 
 ## Quick Start
