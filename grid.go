@@ -119,9 +119,14 @@ func (g *Grid) SetCellTile(c GridCoord, tileTag uint8) {
 // GetCellTile returns the cell tile tag.
 // This operation is only useful for the Grid debugging as
 // for the pathfinding tasks you would want to use GetCellCost() method instead.
+//
+// An out-of-bounds access returns 0.
 func (g *Grid) GetCellTile(c GridCoord) uint8 {
 	x := uint(c.X)
 	y := uint(c.Y)
+	if x >= g.numCols || y >= g.numRows {
+		return 0
+	}
 	i := y*g.numCols + x
 	byteIndex := i / 4
 	shift := (i % 4) * 2
@@ -131,6 +136,8 @@ func (g *Grid) GetCellTile(c GridCoord) uint8 {
 // GetCellCost returns a travelling cost for a given cell as specified in the layer.
 // The return value interpreted as this: 0 is a blocked path while any other value
 // is a travelling cost.
+//
+// An out-of-bounds access returns 0 (interpreted as blocked).
 func (g *Grid) GetCellCost(c GridCoord, l GridLayer) uint8 {
 	x := uint(c.X)
 	y := uint(c.Y)
