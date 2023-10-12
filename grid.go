@@ -171,17 +171,17 @@ func (g *Grid) PosToCoord(x, y float64) GridCoord {
 }
 
 // CoordToPos converts a grid coord into a world position.
-func (g *Grid) CoordToPos(cell GridCoord) (float64, float64) {
-	x := (float64(cell.X) * g.fcellWidth) + g.fcellHalfWidth
-	y := (float64(cell.Y) * g.fcellHeight) + g.fcellHalfHeight
+func (g *Grid) CoordToPos(c GridCoord) (float64, float64) {
+	x := (float64(c.X) * g.fcellWidth) + g.fcellHalfWidth
+	y := (float64(c.Y) * g.fcellHeight) + g.fcellHalfHeight
 	return x, y
 }
 
 // PackCoord returns a packed version of a grid coordinate.
 // It can be useful to get an efficient map key.
 // A packed coordinate can later be unpacked with UnpackCoord() method.
-func (g *Grid) PackCoord(cell GridCoord) uint32 {
-	return uint32(cell.X) | uint32(cell.Y<<16)
+func (g *Grid) PackCoord(c GridCoord) uint32 {
+	return uint32(c.X) | uint32(c.Y<<16)
 }
 
 // UnpackCoord takes a packed coord and returns its unpacked version.
