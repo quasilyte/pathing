@@ -29,6 +29,7 @@ func (t *quasilytePathingBFSTester) Init(tc *testCase) {
 		WorldWidth:  uint(width),
 		WorldHeight: uint(height),
 	})
+	fillPathingGrid(t.grid, tc)
 }
 
 func (t *quasilytePathingBFSTester) BuildPath() (pathing.GridPath, gridCoord) {
@@ -36,4 +37,15 @@ func (t *quasilytePathingBFSTester) BuildPath() (pathing.GridPath, gridCoord) {
 	to := pathing.GridCoord{X: t.tc.finish.X, Y: t.tc.finish.Y}
 	result := t.bfs.BuildPath(t.grid, from, to, pathingLayer)
 	return result.Steps, gridCoord{X: result.Finish.X, Y: result.Finish.Y}
+}
+
+func fillPathingGrid(g *pathing.Grid, tc *testCase) {
+	for y, row := range tc.layout {
+		for x, col := range row {
+			if col != 'x' {
+				continue
+			}
+			g.SetCellTile(pathing.GridCoord{X: x, Y: y}, 1)
+		}
+	}
 }

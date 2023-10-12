@@ -177,10 +177,11 @@ Time - **ns/op**:
 
 | Library | no_wall | simple_wall | multi_wall |
 |---|---|---|---|
-| quasilyte/pathing BFS | 3525 | 2084 | 2688 |
-| quasilyte/pathing A* | 20140 | 3415 | 13310 |
+| quasilyte/pathing BFS | 3525 | 6353 | 16927 |
+| quasilyte/pathing A* | 20140 | 35846 | 44756 |
 | fzipp/astar | 948367 | 1554290 | 1842812 |
 | beefsack/go-astar | 453939 | 939300 | 1032581 |
+| kelindar/tile | 107632 ns | 169613 ns | 182342 ns |
 | s0rg/grid | 1816039 | 1154117 | 1189989 |
 | SolarLune/paths | 6588751 | 5158604 | 6114856 |
 
@@ -192,6 +193,7 @@ Allocations - **allocs/op**:
 | quasilyte/pathing A* | 0 | 0 | 0 |
 | fzipp/astar | 2008 | 3677 | 3600 |
 | beefsack/go-astar | 529 | 1347 | 1557 |
+| kelindar/tile | 3 | 3 | 3 |
 | s0rg/grid | 2976 | 1900 | 1759 |
 | SolarLune/paths | 7199 | 6368 | 7001 |
 
@@ -203,6 +205,7 @@ Allocations -  **bytes/op**:
 | quasilyte/pathing A* | 0 | 0 | 0 |
 | fzipp/astar | 337336 | 511908 | 722690 |
 | beefsack/go-astar | 43653 | 93122 | 130731 |
+| tile | 123118 | 32950 | 65763 |
 | s0rg/grid | 996889 | 551976 | 740523 |
 | SolarLune/paths | 235168 | 194768 | 230416 |
 

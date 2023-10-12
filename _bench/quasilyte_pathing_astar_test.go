@@ -27,6 +27,7 @@ func (t *quasilytePathingAStarTester) Init(tc *testCase) {
 		WorldWidth:  uint(width),
 		WorldHeight: uint(height),
 	})
+	fillPathingGrid(t.grid, tc)
 }
 
 func (t *quasilytePathingAStarTester) BuildPath() (pathing.GridPath, gridCoord) {

@@ -11,6 +11,8 @@ require (
 )
 
 require (
+	github.com/kelindar/iostream v1.3.0 // indirect
+	github.com/kelindar/tile v1.3.0 // indirect
 	github.com/s0rg/array2d v1.1.1 // indirect
 	github.com/s0rg/set v1.0.1 // indirect
 	github.com/s0rg/vec2d v1.1.1 // indirect

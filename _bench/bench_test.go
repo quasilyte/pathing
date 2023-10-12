@@ -37,6 +37,22 @@ func BenchmarkQuasilytePathingAStar(b *testing.B) {
 	}
 }
 
+func BenchmarkKelindarTile(b *testing.B) {
+	for i := range testCaseList {
+		tc := testCaseList[i]
+		b.Run(tc.name, func(b *testing.B) {
+			lib := newKelindarTileTester()
+			lib.Init(tc)
+
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				_, finish := lib.BuildPath()
+				validateResult(b, tc, finish)
+			}
+		})
+	}
+}
+
 func BenchmarkFzippAstar(b *testing.B) {
 	for i := range testCaseList {
 		tc := testCaseList[i]
