@@ -32,6 +32,15 @@ func MakeGridPath(steps ...Direction) GridPath {
 	return result
 }
 
+// Truncated returns the path of at most n steps long.
+func (p GridPath) Truncated(n byte) GridPath {
+	p2 := p
+	if p2.len > n {
+		p2.len = n
+	}
+	return p2
+}
+
 // String returns a debug-print version of the path.
 // It's not intended to be used a fast path-to-string method.
 func (p GridPath) String() string {
