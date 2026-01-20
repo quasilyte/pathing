@@ -742,6 +742,18 @@ var astarTests = []pathfindTestCase{
 		layer: pathing.MakeGridLayer([8]uint8{2, 0, 5, 17, 0, 0, 0, 0}),
 		cost:  19,
 	},
+	{
+		name: "cost3",
+		path: []string{
+			"..      .",
+			".. owww  ",
+			"..   Aww$",
+			"wwwwwww..",
+			".........",
+		},
+		layer: pathing.MakeGridLayer([8]uint8{25, 0, 255, 255, 0, 0, 0, 0}),
+		cost:  325,
+	},
 
 	{
 		name: "blocked1",
