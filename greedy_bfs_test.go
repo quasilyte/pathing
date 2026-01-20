@@ -8,7 +8,7 @@ import (
 )
 
 func BenchmarkGreedyBFS(b *testing.B) {
-	l := pathing.MakeGridLayer([4]uint8{1, 0, 1, 1})
+	l := pathing.MakeGridLayer([8]uint8{1, 0, 1, 1, 0, 0, 0, 0})
 	for i := range bfsTests {
 		test := bfsTests[i]
 		if !test.bench {
@@ -728,5 +728,33 @@ var bfsTests = []pathfindTestCase{
 		},
 		bench:   true,
 		partial: true,
+	},
+
+	{
+		name: "blocked1",
+		path: []string{
+			"..............~$",
+			"..xxxxxxxxxxxx  ",
+			".............x .",
+			".............x .",
+			".............x .",
+			".............x .",
+			"   ..........x .",
+			"A. xxxxxxxxxxx .",
+			"..             .",
+		},
+		cost: 26,
+	},
+
+	{
+		name: "blocked2",
+		path: []string{
+			"A.............x......   ....               ...x.....x.....x....",
+			" .............x...... x      xxxxxxxxxx~~~ ...x..x..x..x..x....",
+			" ...xxxxxxxxxxx...... x...............x... ~..x..x..x..x..x....",
+			"                      x...............x...    ...x.....x......B",
+		},
+		partial: true,
+		cost:    56,
 	},
 }

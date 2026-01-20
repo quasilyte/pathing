@@ -2,6 +2,8 @@ module github.com/quasilyte/pathing/_bench
 
 go 1.21
 
+replace github.com/quasilyte/pathing => ../
+
 require (
 	github.com/beefsack/go-astar v0.0.0-20200827232313-4ecf9e304482
 	github.com/fzipp/astar v0.2.0

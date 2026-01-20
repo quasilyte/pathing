@@ -33,7 +33,7 @@ func Example() {
 	)
 
 	// Grid map cells contain "tile tags"; these are basically
-	// a tile enum values that should fit the 2 bits (max 4 tags per Grid).
+	// a tile enum values that should fit the 3 bits (max 8 tags per Grid).
 	// The default tag is 0 (tilePlain).
 	// Let's add some forests and mountains.
 	//
@@ -59,12 +59,12 @@ func Example() {
 	// We do that by using layers. I'll define two layers here
 	// to show you how it's possible to interpret the grid differently
 	// depending on the layer.
-	normalLayer := pathing.MakeGridLayer([4]uint8{
+	normalLayer := pathing.MakeGridLayer([8]uint8{
 		tilePlain:    1, // passable
 		tileMountain: 0, // not passable
 		tileForest:   0, // not passable
 	})
-	flyingLayer := pathing.MakeGridLayer([4]uint8{
+	flyingLayer := pathing.MakeGridLayer([8]uint8{
 		tilePlain:    1,
 		tileMountain: 1,
 		tileForest:   1,
@@ -91,11 +91,28 @@ func Example() {
 	// A flying unit can go in a straight line.
 	p = bfs.BuildPath(g, startPos, finishPos, flyingLayer)
 	fmt.Println(p.Steps.String(), "- flying layer path")
+	fmt.Println("  =>", p.Cost)
 
 	// A path building result has some extra information bits you might be interested in.
 	// Usually, you only need the Steps part, so you can pass it around instead of the
 	// entire result object
 	fmt.Println(p.Finish, p.Partial)
+
+	// You can also toggle a "blocked" path bit to make it impossible
+	// to be traversed (unless a layer with blocked tile costs is used).
+	g.SetCellIsBlocked(pathing.GridCoord{X: 2, Y: 1}, true)
+
+	// This blocked our closest route for the flying unit.
+	// Note that it is still known to be a forest tile.
+	// m m m m m
+	// m A X B m
+	// m   f   m
+	// m       m
+	// m m m m m
+
+	p = bfs.BuildPath(g, startPos, finishPos, flyingLayer)
+	fmt.Println(p.Steps.String(), "- after blocking a tile")
+	fmt.Println("  =>", p.Cost)
 
 	// Output:
 	// {Down,Down,Right,Right,Up,Up} - normal layer path
@@ -106,5 +123,8 @@ func Example() {
 	// > step: Up
 	// > step: Up
 	// {Right,Right} - flying layer path
+	//   => 2
 	// {3 1} false
+	// {Up,Right,Right,Down} - after blocking a tile
+	//   => 4
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/quasilyte/pathing"
 )
 
-var pathingLayer = pathing.MakeGridLayer([4]uint8{1, 0, 0, 0})
+var pathingLayer = pathing.MakeGridLayer([8]uint8{1, 0, 0, 0, 0, 0, 0, 0})
 
 type quasilytePathingBFSTester struct {
 	tc *testCase

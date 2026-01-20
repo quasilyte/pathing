@@ -30,8 +30,8 @@ func runPathfindTest(t *testing.T, test pathfindTestCase, constructor func(uint,
 		t.Helper()
 
 		l := test.layer
-		if l == 0 {
-			l = pathing.MakeGridLayer([4]uint8{1, 0, 2, 3})
+		if l == ([2]uint64{}) {
+			l = pathing.MakeGridLayer([8]uint8{1, 0, 2, 3, 0, 0, 0, 0})
 		}
 
 		result := impl.BuildPath(grid, parseResult.start, parseResult.dest, l)
@@ -79,12 +79,12 @@ func runPathfindTest(t *testing.T, test pathfindTestCase, constructor func(uint,
 			wantCost = result.Steps.Len()
 		}
 		if haveCost != wantCost {
-			t.Fatalf("costs mismatch\nmap:\n%s\nhave (l=%d c=%d):\n%s\nwant (l=%d c=%d):\n%s",
+			t.Fatalf("costs mismatch\nmap:\n%s\n\nhave (l=%d c=%d):\n%s\n\nwant (l=%d c=%d):\n%s",
 				strings.Join(m, "\n"), pathLen, haveCost, have, parseResult.pathLen, wantCost, want)
 		}
 
 		if have != want {
-			t.Fatalf("paths mismatch\nmap:\n%s\nhave (l=%d c=%d):\n%s\nwant (l=%d):\n%s",
+			t.Fatalf("paths mismatch\nmap:\n%s\n\nhave (l=%d c=%d):\n%s\n\nwant (l=%d):\n%s",
 				strings.Join(m, "\n"), pathLen, result.Cost, have, parseResult.pathLen, want)
 		}
 
@@ -203,8 +203,14 @@ func testParseGrid(tb testing.TB, m []string) testGrid {
 				grid.SetCellTile(cell, 1)
 			case 'o', 'O':
 				grid.SetCellTile(cell, 2)
+			case 'c': // Blocked o
+				grid.SetCellTile(cell, 2)
+				grid.SetCellIsBlocked(cell, true)
 			case 'w', 'W':
 				grid.SetCellTile(cell, 3)
+			case 'm': // Blocked w
+				grid.SetCellTile(cell, 3)
+				grid.SetCellIsBlocked(cell, true)
 			case 'A':
 				startPos = cell
 			case 'B', '$':
@@ -213,6 +219,8 @@ func testParseGrid(tb testing.TB, m []string) testGrid {
 				}
 				destPos = cell
 				haveRows[row][col] = 'B'
+			case '~': // Blocked ' '
+				grid.SetCellIsBlocked(cell, true)
 			case ' ':
 				pathLen++
 				haveRows[row][col] = '.'

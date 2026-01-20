@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+const largeMapWidth = 2000
+
 func BenchmarkQuasilytePathingBFS(b *testing.B) {
 	for i := range testCaseList {
 		tc := testCaseList[i]
@@ -406,6 +408,62 @@ var testCaseList = []*testCase{
 			"                                                  ",
 			"                                                  ",
 			"                                                  ",
+		},
+	}),
+
+	initTestCase(&testCase{
+		name: "large_map",
+		layout: []string{
+			"         x                             x          " + strings.Repeat(" ", largeMapWidth),
+			"    S    x                             x          " + strings.Repeat(" ", largeMapWidth),
+			"                                       x          " + strings.Repeat(" ", largeMapWidth),
+			"         x    xxxxxxxxx                x          " + strings.Repeat(" ", largeMapWidth),
+			"xxxxx    x            x                x          " + strings.Repeat(" ", largeMapWidth),
+			"         xxxx xxxx    x                x          " + strings.Repeat(" ", largeMapWidth),
+			"         x       x    x                x          " + strings.Repeat(" ", largeMapWidth),
+			"  xxxxxxxx xxxxx xxxxxxxxxxx           x          " + strings.Repeat(" ", largeMapWidth),
+			"                 x                     x          " + strings.Repeat(" ", largeMapWidth),
+			"  xxxxxx xxxxxxxxxxxxxx xx xxxxxxxxxxxxx          " + strings.Repeat(" ", largeMapWidth),
+			"       x x       x    x                           " + strings.Repeat(" ", largeMapWidth),
+			"       xxx       x    x                           " + strings.Repeat(" ", largeMapWidth),
+			"              x  x F                              " + strings.Repeat(" ", largeMapWidth),
+			"    xxxxxxxxxxx  xxxx x                           " + strings.Repeat(" ", largeMapWidth),
+			"              x       x                           " + strings.Repeat(" ", largeMapWidth),
+			"              x  x    x     x                     " + strings.Repeat(" ", largeMapWidth),
+			"              x  x          x                     " + strings.Repeat(" ", largeMapWidth),
+			"                            x                     " + strings.Repeat(" ", largeMapWidth),
+			"         xxxxxxxxx          x                     " + strings.Repeat(" ", largeMapWidth),
+			"                 x          x                     " + strings.Repeat(" ", largeMapWidth),
+			"xxxx             x          x                     " + strings.Repeat(" ", largeMapWidth),
+			"                            x                     " + strings.Repeat(" ", largeMapWidth),
+			"                            x                     " + strings.Repeat(" ", largeMapWidth),
+			"                            x                     " + strings.Repeat(" ", largeMapWidth),
+			"                            x                     " + strings.Repeat(" ", largeMapWidth),
+			"xxxxxxxxxx                  x                     " + strings.Repeat(" ", largeMapWidth),
+			"                            x                     " + strings.Repeat(" ", largeMapWidth),
+			"                  x         x                     " + strings.Repeat(" ", largeMapWidth),
+			"                  x         x                     " + strings.Repeat(" ", largeMapWidth),
+			"                  x                               " + strings.Repeat(" ", largeMapWidth),
+			"                  x                               " + strings.Repeat(" ", largeMapWidth),
+			"                  x                               " + strings.Repeat(" ", largeMapWidth),
+			"                  x                               " + strings.Repeat(" ", largeMapWidth),
+			"                  x                               " + strings.Repeat(" ", largeMapWidth),
+			"                  x                               " + strings.Repeat(" ", largeMapWidth),
+			"                  x                               " + strings.Repeat(" ", largeMapWidth),
+			"                  x                               " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
+			"                                                  " + strings.Repeat(" ", largeMapWidth),
 		},
 	}),
 }

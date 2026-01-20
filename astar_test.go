@@ -727,7 +727,7 @@ var astarTests = []pathfindTestCase{
 			"wwwwwww..",
 			".........",
 		},
-		layer: pathing.MakeGridLayer([4]uint8{1, 0, 2, 14}),
+		layer: pathing.MakeGridLayer([8]uint8{1, 0, 2, 14, 0, 0, 0, 0}),
 		cost:  14,
 	},
 	{
@@ -739,7 +739,42 @@ var astarTests = []pathfindTestCase{
 			"wwwwwww..",
 			".........",
 		},
-		layer: pathing.MakeGridLayer([4]uint8{2, 0, 5, 17}),
+		layer: pathing.MakeGridLayer([8]uint8{2, 0, 5, 17, 0, 0, 0, 0}),
 		cost:  19,
+	},
+
+	{
+		name: "blocked1",
+		path: []string{
+			"...o.   .",
+			"...owWw .",
+			"...ooAm$.",
+			"wwwwwww..",
+			".........",
+		},
+		layer: pathing.MakeGridLayer([8]uint8{2, 0, 5, 17, 0, 0, 0, 0}),
+		cost:  27,
+	},
+
+	{
+		name: "blocked2",
+		path: []string{
+			".....$.........",
+			".     .........",
+			". xxxxxxxxxxx..",
+			". x.........x..",
+			". x.........x..",
+			". x.........x..",
+			". x.........x..",
+			". x.........x..",
+			". x.........x..",
+			". x.........x..",
+			". x.........x..",
+			". x.........x..",
+			". x.........x~~",
+			".        ......",
+			"........    A..",
+		},
+		cost: 29,
 	},
 }

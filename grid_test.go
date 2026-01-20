@@ -40,10 +40,13 @@ func TestEmptyGrid(t *testing.T) {
 		{X: -2045, Y: -3525},
 	}
 
-	l := pathing.MakeGridLayer([4]uint8{1, 0, 1, 1})
+	l := pathing.MakeGridLayer([8]uint8{1, 0, 1, 1, 0, 0, 0, 0})
 	for _, pos := range positions {
 		if p.GetCellCost(p.PosToCoord(pos.XY()), l) != 0 {
 			t.Fatalf("empty grid reported %v as free", pos)
+		}
+		if p.GetCellIsBlocked(p.PosToCoord(pos.XY())) {
+			t.Fatalf("empty grid reported %v as blocked", pos)
 		}
 	}
 }
@@ -87,10 +90,13 @@ func TestGridOutOfBounds(t *testing.T) {
 		{X: -10, Y: 3},
 	}
 
-	l := pathing.MakeGridLayer([4]uint8{1, 0, 1, 1})
+	l := pathing.MakeGridLayer([8]uint8{1, 0, 1, 1, 0, 0, 0, 0})
 	for _, coord := range coords {
 		if p.GetCellCost(coord, l) != 0 {
 			t.Fatalf("grid reported out-of-bounds %v as free", coord)
+		}
+		if p.GetCellIsBlocked(coord) {
+			t.Fatalf("grid reported out-of-bounds %v as blocked", coord)
 		}
 	}
 }
@@ -112,7 +118,7 @@ func TestGridMaps(t *testing.T) {
 		},
 	}
 
-	l := pathing.MakeGridLayer([4]uint8{1, 0, 1, 1})
+	l := pathing.MakeGridLayer([8]uint8{1, 0, 1, 1, 0, 0, 0, 0})
 	for i, test := range tests {
 		parsed := testParseGrid(t, test)
 		for row := 0; row < parsed.numRows; row++ {
@@ -135,36 +141,81 @@ func TestGridMaps(t *testing.T) {
 }
 
 func TestRandFillGrid(t *testing.T) {
-	p := pathing.NewGrid(pathing.GridConfig{
-		WorldWidth:  10 * 32,
-		WorldHeight: 10 * 32,
-	})
+	for try := 0; try < 15; try++ {
+		p := pathing.NewGrid(pathing.GridConfig{
+			WorldWidth:  10 * 32,
+			WorldHeight: 10 * 32,
+		})
 
-	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
-	layers := make([][]uint8, 10)
-	for i := range layers {
-		layers[i] = make([]uint8, 10)
-		for j := range layers[i] {
-			layers[i][j] = uint8(rng.Int63n(4))
-		}
-	}
-
-	values := []uint8{10, 0, 20, 30}
-	values2 := []uint8{0, 1, 2, 3}
-	l := pathing.MakeGridLayer(([4]uint8)(values))
-	l2 := pathing.MakeGridLayer(([4]uint8)(values2))
-	for y := 0; y < 10; y++ {
-		for x := 0; x < 10; x++ {
-			c := pathing.GridCoord{X: x, Y: y}
-			tag := layers[y][x]
-			p.SetCellTile(c, tag)
-			v := p.GetCellCost(c, l)
-			if v != values[tag] {
-				t.Fatalf("grid[%d][%d] value mismatch: have %v, want %v", y, x, v, values[tag])
+		rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+		layers := make([][]uint8, 10)
+		for i := range layers {
+			layers[i] = make([]uint8, 10)
+			for j := range layers[i] {
+				layers[i][j] = uint8(rng.Int63n(4))
 			}
-			v2 := p.GetCellCost(c, l2)
-			if v2 != values2[tag] {
-				t.Fatalf("grid[%d][%d] value2 mismatch: have %v, want %v", y, x, v2, values2[tag])
+		}
+
+		values := []uint8{10, 0, 20, 30, 0, 0, 0, 0}
+		values2 := []uint8{0, 1, 2, 3, 0, 0, 0, 0}
+		l := pathing.MakeGridLayer(([8]uint8)(values))
+		l2 := pathing.MakeGridLayer(([8]uint8)(values2))
+		// Pre-set some tiles to a blocked state.
+		blockedCells := make(map[pathing.GridCoord]bool)
+		for y := 0; y < 10; y++ {
+			for x := 0; x < 10; x++ {
+				c := pathing.GridCoord{X: x, Y: y}
+				if rng.Float64() <= 0.1 {
+					p.SetCellIsBlocked(c, true)
+					blockedCells[c] = true
+				}
+			}
+		}
+		// Runs are meant to test that setting individual cells
+		// does not invalidate other cells in the process.
+		for run := 0; run < 4; run++ {
+			for y := 0; y < 10; y++ {
+				for x := 0; x < 10; x++ {
+					c := pathing.GridCoord{X: x, Y: y}
+					tag := layers[y][x]
+					p.SetCellTile(c, tag)
+					v := p.GetCellCost(c, l)
+					if blockedCells[c] {
+						if v != 0 {
+							t.Fatalf("grid[%d][%d] blocked cell cost is not 0 (%v)", y, x, v)
+						}
+					} else {
+						if v != values[tag] {
+							t.Fatalf("grid[%d][%d] value mismatch: have %v, want %v", y, x, v, values[tag])
+						}
+					}
+					v2 := p.GetCellCost(c, l2)
+					if blockedCells[c] {
+						if v2 != 0 {
+							t.Fatalf("grid[%d][%d] blocked2 cell cost is not 0 (%v)", y, x, v2)
+						}
+					} else {
+						if v2 != values2[tag] {
+							t.Fatalf("grid[%d][%d] value2 mismatch: have %v, want %v", y, x, v2, values2[tag])
+						}
+					}
+					tag2, blocked := p.GetCellTile2(c)
+					if tag2 != tag {
+						t.Fatalf("grid[%d][%d] GetCellTile2 tag mismatch: have %v, want %v", y, x, tag2, tag)
+					}
+					wantBlocked := blockedCells[c]
+					if blocked != wantBlocked {
+						t.Fatalf("grid[%d][%d] GetCellTile2 blocked mismatch: have %v, want %v", y, x, blocked, wantBlocked)
+					}
+					blocked2 := p.GetCellIsBlocked(c)
+					if blocked2 != wantBlocked {
+						t.Fatalf("grid[%d][%d] GetCellIsBlocked blocked mismatch: have %v, want %v", y, x, blocked2, wantBlocked)
+					}
+					tag3 := p.GetCellTile(c)
+					if tag3 != tag {
+						t.Fatalf("grid[%d][%d] GetCellTile tag mismatch: have %v, want %v", y, x, tag3, tag)
+					}
+				}
 			}
 		}
 	}
@@ -177,8 +228,8 @@ func TestGridValueChange(t *testing.T) {
 		CellWidth:   64,
 		CellHeight:  64,
 	})
-	layerValues := []uint8{1, 0, 5, 10}
-	l := pathing.MakeGridLayer(([4]uint8)(layerValues))
+	layerValues := []uint8{1, 0, 5, 10, 0, 0, 0, 0}
+	l := pathing.MakeGridLayer(([8]uint8)(layerValues))
 	coord := pathing.GridCoord{X: 1, Y: 1}
 
 	probes := []uint8{
@@ -219,8 +270,8 @@ func TestSmallGrid(t *testing.T) {
 		t.Fatalf("expected [9,6] size, got [%d,%d]", numCols, numRows)
 	}
 
-	values := []uint8{10, 0, 20, 30}
-	l := pathing.MakeGridLayer(([4]uint8)(values))
+	values := []uint8{10, 0, 20, 30, 0, 0, 0, 0}
+	l := pathing.MakeGridLayer(([8]uint8)(values))
 	numCells := numCols * numRows
 	for y := 0; y < numRows; y++ {
 		for x := 0; x < numCols; x++ {
@@ -275,7 +326,7 @@ func TestGrid(t *testing.T) {
 		{X: 14, Y: 0},
 	}
 
-	l := pathing.MakeGridLayer([4]uint8{0, 1, 2, 3})
+	l := pathing.MakeGridLayer([8]uint8{0, 1, 2, 3, 0, 0, 0, 0})
 	for i, test := range tests {
 		if p.GetCellCost(test, l) != 0 {
 			t.Fatalf("GetCellCost(%d, %d) returned true before it was set", test.X, test.Y)
