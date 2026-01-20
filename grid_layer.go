@@ -5,7 +5,7 @@ import (
 )
 
 // GridLayer is a tile-to-cost mapper.
-// Every Grid cell has a tile tag value ranging from 0 to 3 (2 bits).
+// Every Grid cell has a tile tag value ranging from 0 to 7 (3 bits).
 // Layers are used to turn that tag value into an actual traversal cost.
 //
 // Although you can construct a GridLayer value yourself,
