@@ -57,6 +57,88 @@ func NewAStar(config AStarConfig) *AStar {
 	return astar
 }
 
+// WalkCosts iterates over all reachable tiles, going from the given pos.
+// It's like pathfinding, but in all directions, but without the need
+// to actually build any paths - therefore it is much faster than building
+// paths from pos to every coord in the area to calculate tile costs around the pos.
+//
+// The provided f callback is called for every such reachable tile, given
+// the current coord and the cost associated with a path from pos to that coord.
+// The function is not called for the pos itself.
+// The return value of "true" means the value was found and the iteration
+// will be stopped.
+//
+// There are many use cases for this, one being showing the reachable area
+// for the given movement budget.
+func (astar *AStar) WalkCosts(g *Grid, pos GridCoord, l GridLayer, maxCost int, f func(c GridCoord, cost int) bool) {
+	// Almost identical to the BuildPath, with a few key differences.
+	// It doesn't need a pathmap as paths are never reconstructed.
+	// It can't stop as soon as it finds the solution, as it needs as many of them
+	// as possible - but the user can stop the process by returning true,
+	// so even with a large maxCost it should terminate easily.
+
+	origin := findPathOrigin(pos)
+
+	localStart := pos.Sub(origin)
+
+	frontier := astar.frontier
+	frontier.Reset()
+
+	costmap := astar.costmap
+	costmap.Reset()
+
+	frontier.Push(0, astarCoord{Coord: localStart, Cost: 0})
+
+	for !frontier.IsEmpty() {
+		current := frontier.Pop()
+
+		// Accept the tile path: the first pop wins, subsequent pops for the
+		// same tile are stale duplicates produced by the lazy-deletion
+		// approach and must be ignored.
+		k := costmap.packCoord(current.Coord)
+		if costmap.Contains(k) {
+			continue
+		}
+		costmap.Set(k, uint32(current.Cost))
+
+		// For now we have an explicit start coord check here,
+		// but ideally this coord should be ignored as a side effect
+		// of the algorithm (just need to figure out how).
+		if current.Coord != localStart {
+			if f(current.Coord.Add(origin), int(current.Cost)) {
+				break
+			}
+		}
+
+		for _, offset := range &neighborOffsets {
+			next := current.Coord.Add(offset)
+
+			cx := uint(next.X) + uint(origin.X)
+			cy := uint(next.Y) + uint(origin.Y)
+			if cx >= g.numCols || cy >= g.numRows {
+				continue
+			}
+
+			nextCellCost := g.getCellCost(cx, cy, l)
+			if nextCellCost == 0 {
+				continue
+			}
+
+			newCost := int(current.Cost) + int(nextCellCost)
+			if newCost > maxCost {
+				continue
+			}
+
+			k := costmap.packCoord(next)
+			if costmap.Contains(k) {
+				continue
+			}
+
+			frontier.Push(newCost, astarCoord{Coord: next, Cost: int32(newCost)})
+		}
+	}
+}
+
 // BuildPath attempts to find a path between the two coordinates.
 // It will use a provided Grid in combination with a GridLayer.
 // The Grid is expected to store the tile tags and the GridLayer is
