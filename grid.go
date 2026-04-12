@@ -248,15 +248,25 @@ func (g *Grid) CoordToPos(c GridCoord) (float64, float64) {
 	return x, y
 }
 
+// Deprecated: use a freestanding function PackCoord instead.
+func (g *Grid) PackCoord(c GridCoord) uint32 {
+	return PackCoord(c)
+}
+
+// Deprecated: use a freestanding function UnpackCoord instead.
+func (g *Grid) UnpackCoord(v uint32) GridCoord {
+	return UnpackCoord(v)
+}
+
 // PackCoord returns a packed version of a grid coordinate.
 // It can be useful to get an efficient map key.
 // A packed coordinate can later be unpacked with UnpackCoord() method.
-func (g *Grid) PackCoord(c GridCoord) uint32 {
+func PackCoord(c GridCoord) uint32 {
 	return uint32(c.X) | uint32(c.Y<<16)
 }
 
 // UnpackCoord takes a packed coord and returns its unpacked version.
-func (g *Grid) UnpackCoord(v uint32) GridCoord {
+func UnpackCoord(v uint32) GridCoord {
 	u32 := uint32(v)
 	x := int(u32 & 0xffff)
 	y := int(u32 >> 16)
