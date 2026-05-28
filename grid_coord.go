@@ -21,12 +21,12 @@ func (c GridCoord) IsZero() bool {
 	return c.X == 0 && c.Y == 0
 }
 
-// Add performs a + operation and returns the result coordinate.
+// Add performs a '+' operation and returns the result coordinate.
 func (c GridCoord) Add(other GridCoord) GridCoord {
 	return GridCoord{X: c.X + other.X, Y: c.Y + other.Y}
 }
 
-// Sub performs a - operation and returns the result coordinate.
+// Sub performs a '-' operation and returns the result coordinate.
 func (c GridCoord) Sub(other GridCoord) GridCoord {
 	return GridCoord{X: c.X - other.X, Y: c.Y - other.Y}
 }
@@ -72,6 +72,59 @@ func (c GridCoord) Move(d Direction) GridCoord {
 // Dist finds a Manhattan distance between the two coordinates.
 func (c GridCoord) Dist(other GridCoord) int {
 	return intabs(c.X-other.X) + intabs(c.Y-other.Y)
+}
+
+func (c GridCoord) ToTinyCoord() TinyGridCoord {
+	return TinyGridCoord{
+		X: int8(c.X),
+		Y: int8(c.Y),
+	}
+}
+
+// TinyGridCoord is a compact GridCoord representation
+// that is only capable of storing small values that fit in int8 X/Y.
+// It can be expanded into GridCoord and vice versa.
+type TinyGridCoord struct {
+	X int8
+	Y int8
+}
+
+func (c TinyGridCoord) ToCoord() GridCoord {
+	return GridCoord{
+		X: int(c.X),
+		Y: int(c.Y),
+	}
+}
+
+// IsZero reports whether the coord is {0, 0}.
+func (c TinyGridCoord) IsZero() bool {
+	return c.X == 0 && c.Y == 0
+}
+
+// Add performs a '+' operation and returns the result coordinate.
+func (c TinyGridCoord) Add(other TinyGridCoord) TinyGridCoord {
+	return TinyGridCoord{X: c.X + other.X, Y: c.Y + other.Y}
+}
+
+// Sub performs a '-' operation and returns the result coordinate.
+func (c TinyGridCoord) Sub(other TinyGridCoord) TinyGridCoord {
+	return TinyGridCoord{X: c.X - other.X, Y: c.Y - other.Y}
+}
+
+func (c TinyGridCoord) Move(d Direction) TinyGridCoord {
+	return c.ToCoord().Move(d).ToTinyCoord()
+}
+
+// Dist finds a Manhattan distance between the two coordinates.
+func (c TinyGridCoord) Dist(other TinyGridCoord) int {
+	return int(int8abs(c.X-other.X)) + int(int8abs(c.Y-other.Y))
+}
+
+func int8abs(x int8) int8 {
+	if x < 0 {
+		return -x
+	}
+	return x
 }
 
 func intabs(x int) int {
