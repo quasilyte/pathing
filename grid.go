@@ -258,11 +258,18 @@ func (g *Grid) UnpackCoord(v uint32) GridCoord {
 	return UnpackCoord(v)
 }
 
+// PackTinyCoord returns a packed version of a tiny grid coordinate.
+// It can be useful to get an efficient map key.
+// A packed coordinate can later be unpacked with UnpackTinyCoord() method.
+func PackTinyCoord(c TinyGridCoord) uint16 {
+	return uint16(c.X) | (uint16(c.Y) << 8)
+}
+
 // PackCoord returns a packed version of a grid coordinate.
 // It can be useful to get an efficient map key.
 // A packed coordinate can later be unpacked with UnpackCoord() method.
 func PackCoord(c GridCoord) uint32 {
-	return uint32(c.X) | uint32(c.Y<<16)
+	return uint32(c.X) | (uint32(c.Y) << 16)
 }
 
 // UnpackCoord takes a packed coord and returns its unpacked version.
@@ -271,4 +278,12 @@ func UnpackCoord(v uint32) GridCoord {
 	x := int(u32 & 0xffff)
 	y := int(u32 >> 16)
 	return GridCoord{X: x, Y: y}
+}
+
+// UnpackCoord takes a packed coord and returns its unpacked version.
+func UnpackTinyCoord(v uint16) TinyGridCoord {
+	u16 := uint16(v)
+	x := int8(u16 & 0xff)
+	y := int8(u16 >> 8)
+	return TinyGridCoord{X: x, Y: y}
 }

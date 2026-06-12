@@ -58,7 +58,7 @@ func NewAStar(config AStarConfig) *AStar {
 }
 
 // WalkCosts iterates over all reachable tiles, going from the given pos.
-// It's like pathfinding, but in all directions, but without the need
+// It's like pathfinding, but in all directions, and without the need
 // to actually build any paths - therefore it is much faster than building
 // paths from pos to every coord in the area to calculate tile costs around the pos.
 //
