@@ -33,12 +33,46 @@ func MakeGridPath(steps ...Direction) GridPath {
 }
 
 // Truncated returns the path of at most n steps long.
+//
+// For example, a path like [Left, Left, Up] of len 3
+// can be truncated to n=2, resulting in [Left, Left] path.
+// Truncating above the length is basically just a Rewind().
+//
+// The returned path is reset like Rewind was called.
+// The p's iteration state is untouched.
 func (p GridPath) Truncated(n int) GridPath {
-	p2 := p
-	if p2.len > byte(n) {
-		p2.len = byte(n)
+	if isBigEndian {
+		return p.truncatePortable(n)
 	}
+	return p.truncateLE(n)
+}
+
+func (p GridPath) truncateLE(n int) GridPath {
+	// This one is 2 times faster than portable version,
+	// but it requires a LE arch.
+
+	p2 := p
+	if n >= int(p2.len) {
+		p2.Rewind()
+		return p2
+	}
+
+	dropped := p.len - byte(n)
+	udata := *reinterpret[uint128](&p)
+	udata = udata.ShiftRight(2 * uint(dropped))
+	p2 = *reinterpret[GridPath](&udata)
+	p2.len = byte(n)
+	p2.Rewind()
 	return p2
+}
+
+func (p GridPath) truncatePortable(n int) GridPath {
+	var result GridPath
+	for i := n; i > 0; i-- {
+		result.push(p.Get(i - 1))
+	}
+	result.Rewind()
+	return result
 }
 
 // String returns a debug-print version of the path.

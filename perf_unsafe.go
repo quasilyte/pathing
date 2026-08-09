@@ -13,3 +13,7 @@ type goslice struct {
 func readByte(b []byte, index uint) byte {
 	return *(*byte)(unsafe.Add((*goslice)(unsafe.Pointer(&b)).data, index))
 }
+
+func reinterpret[Dst, Src any](ptr *Src) *Dst {
+	return (*Dst)(unsafe.Pointer(ptr))
+}

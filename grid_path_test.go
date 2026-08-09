@@ -80,6 +80,33 @@ func TestGridPath(t *testing.T) {
 		if !reflect.DeepEqual(directions, reconstructed) {
 			t.Fatalf("test%d paths mismatch", i)
 		}
+		p.Rewind()
+		j := 0
+		for p.HasNext() {
+			x := p.Get(j)
+			y := p.Next()
+			if x != y {
+				t.Fatalf("test%d Get(%d) mismatch (want %v have %v)", i, j, x, y)
+			}
+			j++
+		}
+
+		p.Rewind()
+		directions2 := directions
+		step := 0
+		for p.Len() > 0 {
+			p = p.Truncated(p.Len() - 1)
+			reconstructed2 := []pathing.Direction{}
+			for p.HasNext() {
+				reconstructed2 = append(reconstructed2, p.Next())
+			}
+			directions2 = directions2[:len(directions2)-1]
+			want := directions2
+			if !reflect.DeepEqual(want, reconstructed2) {
+				t.Fatalf("test%d step %d reconstructed2 paths mismatch (want %v have %v)", i, step, want, reconstructed2)
+			}
+			step++
+		}
 	}
 
 	r := rand.New(rand.NewSource(time.Now().Unix()))
