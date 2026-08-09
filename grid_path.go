@@ -33,10 +33,10 @@ func MakeGridPath(steps ...Direction) GridPath {
 }
 
 // Truncated returns the path of at most n steps long.
-func (p GridPath) Truncated(n byte) GridPath {
+func (p GridPath) Truncated(n int) GridPath {
 	p2 := p
-	if p2.len > n {
-		p2.len = n
+	if p2.len > byte(n) {
+		p2.len = byte(n)
 	}
 	return p2
 }
@@ -113,7 +113,7 @@ func (p *GridPath) push(dir Direction) {
 // It's not affected by the iterator state; the result is always
 // an nth step direction.
 func (p *GridPath) Get(i int) Direction {
-	return p.get(byte(i))
+	return p.get(p.len - byte(i) - 1)
 }
 
 func (p *GridPath) get(i byte) Direction {
