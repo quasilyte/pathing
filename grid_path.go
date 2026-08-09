@@ -109,6 +109,13 @@ func (p *GridPath) push(dir Direction) {
 	}
 }
 
+// Get returns the path's nth step, it's 0-based.
+// It's not affected by the iterator state; the result is always
+// an nth step direction.
+func (p *GridPath) Get(i int) Direction {
+	return p.get(byte(i))
+}
+
 func (p *GridPath) get(i byte) Direction {
 	byteIndex := i / 4
 	bitShift := (i % 4) * 2
