@@ -74,6 +74,13 @@ func (c GridCoord) Dist(other GridCoord) int {
 	return intabs(c.X-other.X) + intabs(c.Y-other.Y)
 }
 
+func (c GridCoord) Midpoint(other GridCoord) GridCoord {
+	return GridCoord{
+		X: (c.X + other.X) / 2,
+		Y: (c.Y + other.Y) / 2,
+	}
+}
+
 func (c GridCoord) ToTinyCoord() TinyGridCoord {
 	return TinyGridCoord{
 		X: int8(c.X),
@@ -118,6 +125,13 @@ func (c TinyGridCoord) Move(d Direction) TinyGridCoord {
 // Dist finds a Manhattan distance between the two coordinates.
 func (c TinyGridCoord) Dist(other TinyGridCoord) int {
 	return int(int8abs(c.X-other.X)) + int(int8abs(c.Y-other.Y))
+}
+
+func (c TinyGridCoord) Midpoint(other TinyGridCoord) TinyGridCoord {
+	return TinyGridCoord{
+		X: (c.X + other.X) / 2,
+		Y: (c.Y + other.Y) / 2,
+	}
 }
 
 func int8abs(x int8) int8 {
