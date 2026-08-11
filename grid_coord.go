@@ -1,5 +1,19 @@
 package pathing
 
+var (
+	// UnsetCoord is a conventional "non-existing" coord sentinel.
+	// It will only work for games that can't have negative coordinates.
+	//
+	// The zero value of GridCoord is a valid [0, 0] coordinate,
+	// so it can't be used as "undefined" value. This value
+	// is declared just for that. And it's exported from the package
+	// to allow games have this well-defined shared sentinel.
+	UnsetCoord = GridCoord{X: -1, Y: -1}
+
+	// UnsetTinyCoord is like UnsetCoord, but for smaller coords.
+	UnsetTinyCoord = TinyGridCoord{X: -1, Y: -1}
+)
+
 // GridCoord represents a grid-local coordinate.
 // You can translate it to a world coordinate using a grid.
 //
