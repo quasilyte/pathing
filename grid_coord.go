@@ -95,6 +95,10 @@ func (c GridCoord) Midpoint(other GridCoord) GridCoord {
 	}
 }
 
+func (c GridCoord) DirTo(other GridCoord) Direction {
+	return dirTo(c.X, c.Y, other.X, other.Y)
+}
+
 func (c GridCoord) ToTinyCoord() TinyGridCoord {
 	return TinyGridCoord{
 		X: int8(c.X),
@@ -148,6 +152,10 @@ func (c TinyGridCoord) Midpoint(other TinyGridCoord) TinyGridCoord {
 	}
 }
 
+func (c TinyGridCoord) DirTo(other TinyGridCoord) Direction {
+	return dirTo(int(c.X), int(c.Y), int(other.X), int(other.Y))
+}
+
 func int8abs(x int8) int8 {
 	if x < 0 {
 		return -x
@@ -160,4 +168,23 @@ func intabs(x int) int {
 		return -x
 	}
 	return x
+}
+
+func dirTo(fromX, fromY, toX, toY int) Direction {
+	dx := toX - fromX
+	dy := toY - fromY
+
+	if dx == 0 && dy == 0 {
+		return DirNone
+	}
+	if intabs(dx) >= intabs(dy) {
+		if dx > 0 {
+			return DirRight
+		}
+		return DirLeft
+	}
+	if dy > 0 {
+		return DirDown
+	}
+	return DirUp
 }
