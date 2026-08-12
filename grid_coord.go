@@ -14,6 +14,23 @@ var (
 	UnsetTinyCoord = TinyGridCoord{X: -1, Y: -1}
 )
 
+func ChebyshevDist(posA, posB GridCoord) int {
+	dx := posA.X - posB.X
+	if dx < 0 {
+		dx = -dx
+	}
+
+	dy := posA.Y - posB.Y
+	if dy < 0 {
+		dy = -dy
+	}
+
+	if dx > dy {
+		return dx
+	}
+	return dy
+}
+
 // GridCoord represents a grid-local coordinate.
 // You can translate it to a world coordinate using a grid.
 //
