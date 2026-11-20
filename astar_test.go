@@ -1,10 +1,37 @@
 package pathing_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/quasilyte/pathing"
 )
+
+func BenchmarkAStar(b *testing.B) {
+	for i := range astarTests {
+		test := astarTests[i]
+		if !test.bench {
+			continue
+		}
+		l := test.layer
+		if l == ([2]uint64{}) {
+			l = pathing.MakeGridLayer([8]uint8{1, 0, 2, 3, 0, 0, 0, 0})
+		}
+		numCols := len(test.path[0])
+		numRows := len(test.path)
+		b.Run(fmt.Sprintf("%s_%dx%d", test.name, numCols, numRows), func(b *testing.B) {
+			parseResult := testParseGrid(b, test.path)
+			astar := pathing.NewAStar(pathing.AStarConfig{
+				NumCols: uint(parseResult.numCols),
+				NumRows: uint(parseResult.numRows),
+			})
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				astar.BuildPath(parseResult.grid, parseResult.start, parseResult.dest, l)
+			}
+		})
+	}
+}
 
 func TestAStar(t *testing.T) {
 	for i := range astarTests {
@@ -788,5 +815,108 @@ var astarTests = []pathfindTestCase{
 			"........    A..",
 		},
 		cost: 29,
+	},
+
+	{
+		name: "blocked_dest_open",
+		path: []string{
+			"..........",
+			"...A    D.",
+			"..........",
+		},
+		partial: true,
+		bench:   true,
+	},
+
+	{
+		name: "blocked_dest_next_to_start",
+		path: []string{
+			"....",
+			".AD.",
+			"....",
+		},
+		partial: true,
+		bench:   true,
+	},
+
+	{
+		name: "blocked_dest_walled",
+		path: []string{
+			"..........",
+			".A        ",
+			"......xxx ",
+			"......xD  ",
+			"......xxx.",
+			"..........",
+		},
+		partial: true,
+		bench:   true,
+	},
+
+	{
+		name: "blocked_dest_blocked_neighbors",
+		path: []string{
+			"..........",
+			".A        ",
+			"......~~~ ",
+			"......~D  ",
+			"......~~~.",
+			"..........",
+		},
+		partial: true,
+		bench:   true,
+	},
+
+	{
+		name: "blocked_dest_enclosed",
+		path: []string{
+			"..........",
+			".A    x...",
+			".....xDx..",
+			"......x...",
+			"..........",
+		},
+		partial: true,
+		bench:   true,
+	},
+
+	{
+		name: "blocked_dest_costs",
+		path: []string{
+			"..     ...",
+			".A wwwWw..",
+			"xx.x.xD...",
+			"...x.xxx..",
+			"...x......",
+			"...xxxxx..",
+			"..........",
+		},
+		cost:    9,
+		partial: true,
+		bench:   true,
+	},
+
+	{
+		name: "blocked_dest_far",
+		path: []string{
+			"................................................",
+			"................................................",
+			"................................................",
+			"................................................",
+			"................................................",
+			"................................................",
+			"................................................",
+			"...A                                    D.......",
+			"................................................",
+			"................................................",
+			"................................................",
+			"................................................",
+			"................................................",
+			"................................................",
+			"................................................",
+			"................................................",
+		},
+		partial: true,
+		bench:   true,
 	},
 }

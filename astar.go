@@ -170,21 +170,37 @@ func (astar *AStar) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildPat
 	var fallbackCoord GridCoord
 	var fallbackCost int
 	foundPath := false
+
+	goalDist := 0
+
+	// If dst tile is blocked, we can short-cirtuit the search by
+	// targeting the tile right next to it.
+	if g.GetCellCost(to, l) == 0 {
+		goalDist = 1
+	}
+
 	for !frontier.IsEmpty() {
 		current := frontier.Pop()
 
-		if current.Coord == localGoal {
-			result.Steps = constructPath(localStart, localGoal, pathmap)
-			result.Finish = to
-			result.Cost = int(current.Cost)
-			foundPath = true
+		dist := localGoal.Dist(current.Coord)
+		if dist == goalDist {
+			if goalDist == 0 {
+				result.Steps = constructPath(localStart, localGoal, pathmap)
+				result.Finish = to
+				result.Cost = int(current.Cost)
+				foundPath = true
+				break
+			}
+			if current.Weight <= gridPathMaxLen {
+				fallbackCoord = current.Coord
+				fallbackCost = int(current.Cost)
+			}
 			break
 		}
 		if current.Weight > gridPathMaxLen {
 			break
 		}
 
-		dist := localGoal.Dist(current.Coord)
 		if dist < shortestDist {
 			shortestDist = dist
 			fallbackCoord = current.Coord

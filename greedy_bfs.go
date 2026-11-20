@@ -118,6 +118,15 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 	shortestDist := 0xff
 	var fallbackCoord GridCoord
 	foundPath := false
+
+	goalDist := 0
+
+	// If dst tile is blocked, we can short-cirtuit the search by
+	// targeting the tile right next to it.
+	if g.GetCellCost(to, l) == 0 {
+		goalDist = 1
+	}
+
 	for len(hotFrontier) != 0 || !frontier.IsEmpty() {
 		var current weightedGridCoord
 		if len(hotFrontier) != 0 {
@@ -127,18 +136,24 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 			current = frontier.Pop()
 		}
 
-		if current.Coord == localGoal {
-			result.Steps = constructPath(localStart, localGoal, pathmap)
-			result.Finish = to
-			result.Cost = result.Steps.Len()
-			foundPath = true
+		dist := localGoal.Dist(current.Coord)
+		if dist == goalDist {
+			if goalDist == 0 {
+				result.Steps = constructPath(localStart, localGoal, pathmap)
+				result.Finish = to
+				result.Cost = result.Steps.Len()
+				foundPath = true
+				break
+			}
+			if current.Weight <= gridPathMaxLen {
+				fallbackCoord = current.Coord
+			}
 			break
 		}
 		if current.Weight > gridPathMaxLen {
 			break
 		}
 
-		dist := localGoal.Dist(current.Coord)
 		if dist < shortestDist {
 			shortestDist = dist
 			fallbackCoord = current.Coord

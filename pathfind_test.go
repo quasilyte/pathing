@@ -219,6 +219,9 @@ func testParseGrid(tb testing.TB, m []string) testGrid {
 				}
 				destPos = cell
 				haveRows[row][col] = 'B'
+			case 'D': // Blocked B
+				destPos = cell
+				grid.SetCellIsBlocked(cell, true)
 			case '~': // Blocked ' '
 				grid.SetCellIsBlocked(cell, true)
 			case ' ':
